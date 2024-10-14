@@ -67,9 +67,9 @@ class BaseDataset(Dataset):
                 (a single dataset element).
         """
         data_dict = self._index[ind]
-        mix = self.load_audio(data_dict["mix"])
-        label1 = self.load_audio(data_dict["label1"])
-        label2 = self.load_audio(data_dict["label2"])
+        mix = self.load_audio(data_dict["mix"]).squeeze()
+        label1 = self.load_audio(data_dict["label1"]).squeeze()
+        label2 = self.load_audio(data_dict["label2"]).squeeze()
         mouths1 = self.load_np_object(data_dict["mouths1"])
         mouths2 = self.load_np_object(data_dict["mouths2"])
 
@@ -79,6 +79,9 @@ class BaseDataset(Dataset):
             "label2": label2,
             "mouths1": mouths1,
             "mouths2": mouths2,
+            "mix_path": data_dict["mix"],
+            "label1_path": data_dict["label1"],
+            "label2_path": data_dict["label2"],
         }
         instance_data = self.preprocess_data(instance_data)
 

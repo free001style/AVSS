@@ -2,7 +2,9 @@ import logging
 import random
 from typing import List
 
+import numpy as np
 import torch
+import torchaudio
 from torch.utils.data import Dataset
 
 logger = logging.getLogger(__name__)
@@ -18,13 +20,19 @@ class BaseDataset(Dataset):
     """
 
     def __init__(
-        self, index, limit=None, shuffle_index=False, instance_transforms=None
+        self,
+        index,
+        target_sr=16000,
+        limit=None,
+        shuffle_index=False,
+        instance_transforms=None,
     ):
         """
         Args:
             index (list[dict]): list, containing dict for each element of
                 the dataset. The dict has required metadata information,
                 such as label and object path.
+            target_sr (int): supported sample rate.
             limit (int | None): if not None, limit the total number of elements
                 in the dataset to 'limit' elements.
             shuffle_index (bool): if True, shuffle the index. Uses python
@@ -36,8 +44,11 @@ class BaseDataset(Dataset):
         self._assert_index_is_valid(index)
 
         index = self._shuffle_and_limit_index(index, limit, shuffle_index)
+        if not shuffle_index:
+            index = self._sort_index(index)
         self._index: List[dict] = index
 
+        self.target_sr = target_sr
         self.instance_transforms = instance_transforms
 
     def __getitem__(self, ind):
@@ -56,11 +67,19 @@ class BaseDataset(Dataset):
                 (a single dataset element).
         """
         data_dict = self._index[ind]
-        data_path = data_dict["path"]
-        data_object = self.load_object(data_path)
-        data_label = data_dict["label"]
+        mix = self.load_audio(data_dict["mix"])
+        label1 = self.load_audio(data_dict["label1"])
+        label2 = self.load_audio(data_dict["label2"])
+        mouths1 = self.load_np_object(data_dict["mouths1"])
+        mouths2 = self.load_np_object(data_dict["mouths2"])
 
-        instance_data = {"data_object": data_object, "labels": data_label}
+        instance_data = {
+            "mix": mix,
+            "label1": label1,
+            "label2": label2,
+            "mouths1": mouths1,
+            "mouths2": mouths2,
+        }
         instance_data = self.preprocess_data(instance_data)
 
         return instance_data
@@ -70,6 +89,14 @@ class BaseDataset(Dataset):
         Get length of the dataset (length of the index).
         """
         return len(self._index)
+
+    def load_audio(self, path):
+        audio_tensor, sr = torchaudio.load(path)
+        audio_tensor = audio_tensor[0:1, :]  # remove all channels but the first
+        target_sr = self.target_sr
+        if sr != target_sr:
+            audio_tensor = torchaudio.functional.resample(audio_tensor, sr, target_sr)
+        return audio_tensor
 
     def load_object(self, path):
         """
@@ -81,6 +108,19 @@ class BaseDataset(Dataset):
             data_object (Tensor):
         """
         data_object = torch.load(path)
+        return data_object
+
+    def load_np_object(self, path):
+        """
+        Load object from disk.
+
+        Args:
+            path (str): path to the object.
+        Returns:
+            data_object (Tensor):
+        """
+        data_object = np.load(path)["data"]
+        data_object = torch.from_numpy(data_object)
         return data_object
 
     def preprocess_data(self, instance_data):
@@ -139,12 +179,25 @@ class BaseDataset(Dataset):
                 such as label and object path.
         """
         for entry in index:
-            assert "path" in entry, (
-                "Each dataset item should include field 'path'" " - path to audio file."
+            assert "mix" in entry, (
+                "Each dataset item should include field 'mix'"
+                " - path to mixed audio file."
             )
-            assert "label" in entry, (
-                "Each dataset item should include field 'label'"
-                " - object ground-truth label."
+            assert "label1" in entry, (
+                "Each dataset item should include field 'label1'"
+                " - one of source ground-truth audio."
+            )
+            assert "label2" in entry, (
+                "Each dataset item should include field 'label2'"
+                " - one of source ground-truth audio."
+            )
+            assert "mouths1" in entry, (
+                "Each dataset item should include field 'mouths1'"
+                " - one of speaker's mouth video."
+            )
+            assert "mouths2" in entry, (
+                "Each dataset item should include field 'mouths2'"
+                " - one of speaker's mouth video."
             )
 
     @staticmethod
@@ -164,7 +217,7 @@ class BaseDataset(Dataset):
                 of the dataset. The dict has required metadata information,
                 such as label and object path.
         """
-        return sorted(index, key=lambda x: x["KEY_FOR_SORTING"])
+        return sorted(index, key=lambda x: x["mix"])
 
     @staticmethod
     def _shuffle_and_limit_index(index, limit, shuffle_index):

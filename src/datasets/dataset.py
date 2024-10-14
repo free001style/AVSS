@@ -1,0 +1,48 @@
+import json
+import os
+
+from src.datasets.base_dataset import BaseDataset
+from src.utils.io_utils import ROOT_PATH
+
+
+class Dataset(BaseDataset):
+    def __init__(self, part, data_dir=None, *args, **kwargs):
+        if data_dir is None:
+            data_dir = ROOT_PATH / "data" / "datasets" / "dla_dataset"
+        self._data_dir = data_dir
+        index = self._get_or_load_index(part)
+        super().__init__(index, *args, **kwargs)
+
+    def _get_or_load_index(self, part):
+        index_path = self._data_dir / f"{part}_index.json"
+        if index_path.exists():
+            with index_path.open() as f:
+                index = json.load(f)
+        else:
+            index = self._create_index(part)
+            with index_path.open("w") as f:
+                json.dump(index, f, indent=2)
+        return index
+
+    def _create_index(self, part):
+        index = []
+        audio_dir = self._data_dir / "audio" / part
+        mouths_dir = self._data_dir / "mouths"
+        for mix in os.listdir(str(audio_dir / "mix")):
+            if mix.endswith(".wav"):
+                mix_path = str(audio_dir / "mix" / mix)
+                s1_path = str(audio_dir / "s1" / mix)
+                s2_path = str(audio_dir / "s2" / mix)
+                mouths1, mouths2 = mix[:-4].split("_")
+                mouths1_path = str(mouths_dir / f"{mouths1}.npz")
+                mouths2_path = str(mouths_dir / f"{mouths2}.npz")
+                index.append(
+                    {
+                        "mix": mix_path,
+                        "label1": s1_path,
+                        "label2": s2_path,
+                        "mouths1": mouths1_path,
+                        "mouths2": mouths2_path,
+                    }
+                )
+        return index

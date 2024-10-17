@@ -1,3 +1,5 @@
+from torch import autocast
+
 from src.metrics.tracker import MetricTracker
 from src.trainer.base_trainer import BaseTrainer
 
@@ -33,17 +35,20 @@ class Trainer(BaseTrainer):
         if self.is_train:
             metric_funcs = self.metrics["train"]
             self.optimizer.zero_grad()
+        with autocast(device_type=self.device, enabled=self.is_amp):
+            outputs = self.model(**batch)
+            batch.update(outputs)
 
-        outputs = self.model(**batch)
-        batch.update(outputs)
-
-        all_losses = self.criterion(**batch)
-        batch.update(all_losses)
+            all_losses = self.criterion(**batch)
+            batch.update(all_losses)
 
         if self.is_train:
-            batch["loss"].backward()  # sum of all losses is always called loss
+            self.scaler.scale(
+                batch["loss"]
+            ).backward()  # sum of all losses is always called loss
             self._clip_grad_norm()
-            self.optimizer.step()
+            self.scaler.step(self.optimizer)
+            self.scaler.update()
             if self.lr_scheduler is not None:
                 self.lr_scheduler.step()
 

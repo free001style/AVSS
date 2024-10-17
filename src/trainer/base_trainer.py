@@ -2,6 +2,7 @@ from abc import abstractmethod
 
 import torch
 from numpy import inf
+from torch import GradScaler
 from torch.nn.utils import clip_grad_norm_
 from tqdm.auto import tqdm
 
@@ -71,6 +72,9 @@ class BaseTrainer:
         self.optimizer = optimizer
         self.lr_scheduler = lr_scheduler
         self.batch_transforms = batch_transforms
+
+        self.is_amp = config.trainer.get("is_amp", True)
+        self.scaler = GradScaler(device=self.device, enabled=self.is_amp)
 
         # define dataloaders
         self.train_dataloader = dataloaders["train"]
@@ -379,6 +383,7 @@ class BaseTrainer:
         config.trainer.max_grad_norm
         """
         if self.config["trainer"].get("max_grad_norm", None) is not None:
+            self.scaler.unscale_(self.optimizer)
             clip_grad_norm_(
                 self.model.parameters(), self.config["trainer"]["max_grad_norm"]
             )

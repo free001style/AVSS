@@ -1,30 +1,27 @@
 import torch
 import torch.nn as nn
 
-from src.model.layers import (
-    AudioDecoder,
-    AudioEncoder,
-    SeparationNetwork,
-    get_video_model,
-    S3
-)
+from src.model.layers.audio_enc_dec import AudioDecoder, AudioEncoder
+from src.model.layers.separation_network import SeparationNetwork
+from src.model.videonet.lipreading import Lipreading
+from src.model.layers.S3 import S3
 
 
 class RTFS(nn.Module):
     def __init__(
-        self,
-        video_enc_config,
-        channel_dim=256,
-        win_length=255,
-        hop_length=128,
-        n_speakers=2,
-        video_embed_dim=512,
-        fusion_n_head=4,
-        R=12,
-        hidden_dim=64,
-        freqs=128,
-        q_audio=2,
-        q_video=4,
+            self,
+            channel_dim=256,
+            win_length=255,
+            hop_length=128,
+            n_speakers=2,
+            video_embed_dim=512,
+            fusion_n_head=4,
+            R=12,
+            hidden_dim=64,
+            freqs=128,
+            q_audio=2,
+            q_video=4,
+            lipreading_model_path="./data/other/lipreading_model.pth",
     ):
         super(RTFS, self).__init__()
         self.audio_encoder = AudioEncoder(
@@ -36,7 +33,11 @@ class RTFS(nn.Module):
             hop_length=hop_length,
             n_speakers=n_speakers,
         )
-        self.video_encoder = get_video_model(video_enc_config)
+        self.video_encoder = Lipreading()
+        self.video_encoder.load_state_dict(
+            torch.load(lipreading_model_path, weights_only=True)
+        )
+        self.video_encoder.eval().requires_grad_(False)
         self.separator = SeparationNetwork(
             channel_dim,
             video_embed_dim,
@@ -73,9 +74,3 @@ class RTFS(nn.Module):
         result_info = result_info + f"\nTrainable parameters: {trainable_parameters}"
 
         return result_info
-
-
-m = RTFS(0)
-x = torch.randn(5, 32000)
-y = torch.randn(5, 512, 500)
-print(m(x, y))

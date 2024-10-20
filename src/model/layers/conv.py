@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from src.model.layers import cfLN
+from src.model.layers.normalizations import ChannelFrequencyLayerNorm as cfLN
 
 
 class Conv(nn.Module):
@@ -33,6 +33,7 @@ class Conv(nn.Module):
             groups=groups,
             bias=bias,
         )
+        nn.init.xavier_uniform_(self.conv.weight, nn.init.calculate_gain("leaky_relu"))
         self.activation = activation() if activation is not None else nn.Identity()
         if normalization is not None:
             self.normalization = (

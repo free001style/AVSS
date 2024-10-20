@@ -1,17 +1,29 @@
 import torch
 import torch.nn as nn
-from src.model.layers import CAFBlock
-from src.model.layers import RTFSBlock
+
+from src.model.layers.caf import CAFBlock
+from src.model.layers.rtfs_block import RTFSBlock
+from src.model.layers.vp_block import VPBlock
 
 
 class SeparationNetwork(nn.Module):
-    def __init__(self, cin_a, cin_v, h, R=12):
+    def __init__(
+        self,
+        channel_dim,
+        video_embed_dim,
+        n_head=4,
+        R=12,
+        hidden_dim=64,
+        freqs=128,
+        q_audio=2,
+        q_video=4,
+    ):
         super(SeparationNetwork, self).__init__()
         self.R = R
-        rtfs_block = RTFSBlock(256, 64, 128, 2)
-        self.vp = nn.Sequential()
+        rtfs_block = RTFSBlock(channel_dim, hidden_dim, freqs, q_audio)
+        self.vp = VPBlock(q_video, video_embed_dim, hidden_dim)
         self.ap = rtfs_block
-        self.fusion = CAFBlock(cin_a=cin_a, cin_v=cin_v, h=h)
+        self.fusion = CAFBlock(cin_a=channel_dim, cin_v=video_embed_dim, h=n_head)
         self.rtfs_blocks = rtfs_block
 
     def forward(self, audio_embed, video_embed):

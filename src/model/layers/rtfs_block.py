@@ -2,7 +2,10 @@ import torch
 import torch.nn as nn
 from torch.nn import functional as F
 
-from src.model.layers import Conv, DualPath, TFAttention, gLN
+from src.model.layers.attention import TFAttention
+from src.model.layers.conv import Conv
+from src.model.layers.dual_path import DualPath
+from src.model.layers.normalizations import GlobalLayerNorm as gLN
 
 
 class RTFSBlock(nn.Module):
@@ -74,6 +77,7 @@ class Compressor(nn.Module):
                 x += self.pooling(downsample_list[i], (x.shape[2:]))
             else:
                 x += self.pooling(downsample_list[i], (x.shape[1:]))
+
         return downsample_list, x
 
 
@@ -132,7 +136,6 @@ class Interpolation(nn.Module):
 
     def forward(self, m, n):
         m = self.w2(m)
-        size = m.shape[2:] if self.is_2d else m.shape[1:]
-        n1 = F.interpolate(self.w1(n), size=size, mode="nearest")
-        n2 = F.interpolate(self.w3(n), size=size, mode="nearest")
+        n1 = F.interpolate(self.w1(n), size=m.shape[2:], mode="nearest")
+        n2 = F.interpolate(self.w3(n), size=m.shape[2:], mode="nearest")
         return n1 * m + n2

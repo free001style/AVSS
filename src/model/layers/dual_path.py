@@ -5,7 +5,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from sru import SRU
 
-from src.model.layers import cLN
+from src.model.layers.normalizations import ChannelLayerNorm as cLN
 
 
 class DualPath(nn.Module):

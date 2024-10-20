@@ -4,14 +4,15 @@ import torch.nn as nn
 from .layers.separation_network import SeparationNetwork
 from .layers.audio_enc import AudioEncoder
 from .layers.audio_dec import AudioDecoder
+from .layers.video_enc import get_video_model
 
 
 class RTFS(nn.Module):
-    def __init__(self):
+    def __init__(self, video_enc_config):
         super(RTFS, self).__init__()
         self.audio_encoder = AudioEncoder()
         self.audio_decoder = AudioDecoder()
-        self.video_encoder = nn.Sequential()
+        self.video_encoder = get_video_model(video_enc_config)
         self.separator = SeparationNetwork()
         self.mask = nn.Sequential()
 

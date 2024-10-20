@@ -10,6 +10,7 @@ wandb
 comet_ml
 hydra-core
 soundfile
+sru
 
 black
 isort

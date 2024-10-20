@@ -14,7 +14,7 @@ class Conv(nn.Module):
         padding=None,
         dilation=1,
         groups=1,
-        bias=False,
+        bias=False,  # TODO попробовать с true
         freqs=None,
         normalization=None,
         activation=None,

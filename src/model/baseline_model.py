@@ -20,12 +20,10 @@ class BaselineModel(nn.Module):
             # people say it can approximate any function...
             nn.Linear(in_features=n_feats, out_features=fc_hidden),
             nn.ReLU(),
-            nn.Linear(in_features=fc_hidden, out_features=fc_hidden),
-            nn.ReLU(),
             nn.Linear(in_features=fc_hidden, out_features=n_class),
         )
 
-    def forward(self, data_object, **batch):
+    def forward(self, source, **batch):
         """
         Model forward method.
 
@@ -34,7 +32,8 @@ class BaselineModel(nn.Module):
         Returns:
             output (dict): output dict containing logits.
         """
-        return {"logits": self.net(data_object)}
+        
+        return {"predict": self.net(source.transpose(2, 1))}
 
     def __str__(self):
         """

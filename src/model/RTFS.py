@@ -1,9 +1,13 @@
 import torch
 import torch.nn as nn
 
-from src.model.layers.audio_enc_dec import AudioDecoder, AudioEncoder
-from src.model.layers.separation_network import SeparationNetwork
-from src.model.layers.video_enc import get_video_model
+from src.model.layers import (
+    AudioDecoder,
+    AudioEncoder,
+    SeparationNetwork,
+    get_video_model,
+    S3
+)
 
 
 class RTFS(nn.Module):
@@ -43,14 +47,16 @@ class RTFS(nn.Module):
             q_audio=q_audio,
             q_video=q_video,
         )
-        self.mask = nn.Sequential()
+        self.s3 = S3(
+            cin_a=channel_dim
+        )
 
     def forward(self, mix, video, **batch):
         audio_embed = self.audio_encoder(mix)
         video_embed = self.video_encoder(video)
         features = self.separator(audio_embed, video_embed)
-        masked_features = self.mask(audio_embed, features)
-        predict = self.audio_decoder(masked_features, mix.shape[-1])
+        after_s3_features = self.s3(features, audio_embed)
+        predict = self.audio_decoder(after_s3_features, mix.shape[-1])
         return {"predict": predict}
 
     def __str__(self):

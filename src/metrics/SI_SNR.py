@@ -20,7 +20,7 @@ class SI_SNR(BaseMetric):
         """
         super().__init__(*args, **kwargs)
 
-    def __call__(self, source, prediction, **kwargs):
+    def __call__(self, source, predict, **kwargs):
         """
         Metric calculation logic.
 
@@ -30,9 +30,8 @@ class SI_SNR(BaseMetric):
         Returns:
             si-snr (float): calculated si-snr.
         """
-        # ожидаю, что
-        if source.size() != prediction.size() or source.ndim != 3:
-            raise TypeError(f"Inputs must be of shape [batch, n_src, time], got {source.size()} and {prediction.size()} instead")
+        if source.size() != predict.size() or source.ndim != 3:
+            raise TypeError(f"Inputs must be of shape [batch, n_src, time], got {source.size()} and {predict.size()} instead")
         
-        return scale_invariant_signal_noise_ratio(prediction, source)
+        return scale_invariant_signal_noise_ratio(predict, source)
         

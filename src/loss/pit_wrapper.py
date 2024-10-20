@@ -1,18 +1,24 @@
 import torch
 from torch import nn
 
-from torchmetrics.audio import pit
+from torchmetrics.audio.pit import PermutationInvariantTraining
+from torchmetrics.functional.audio import scale_invariant_signal_noise_ratio
 
-class PIT(nn.Module):
+
+class PIT_SI_SNR(nn.Module):
     """
     Example of a loss function to use.
     """
 
-    def __init__(self, ):
+    def __init__(self):
         super().__init__()
-        self.loss = nn.CrossEntropyLoss()
+        self.loss = PermutationInvariantTraining(
+            scale_invariant_signal_noise_ratio,
+            mode="speaker-wise",
+            eval_func="max"
+        )
 
-    def forward(self, logits: torch.Tensor, labels: torch.Tensor, **batch):
+    def forward(self, source, predict, **batch):
         """
         Loss function calculation logic.
 
@@ -30,4 +36,5 @@ class PIT(nn.Module):
         Returns:
             losses (dict): dict containing calculated loss functions.
         """
-        return {"loss": self.loss(logits, labels)}
+
+        return {"loss": self.loss(predict, source)}

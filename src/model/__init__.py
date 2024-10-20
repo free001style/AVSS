@@ -1,5 +1,6 @@
-from src.model.baseline_model import BaselineModel
+from .baseline_model import BaselineModel
+from .RTFS import RTFS
 
 __all__ = [
-    "BaselineModel",
+    "BaselineModel", "RTFS"
 ]

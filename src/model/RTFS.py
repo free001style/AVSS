@@ -2,13 +2,15 @@ import torch
 import torch.nn as nn
 
 from .layers.separation_network import SeparationNetwork
+from .layers.audio_enc import AudioEncoder
+from .layers.audio_dec import AudioDecoder
 
 
 class RTFS(nn.Module):
     def __init__(self):
         super(RTFS, self).__init__()
-        self.audio_encoder = nn.Sequential()
-        self.audio_decoder = nn.Sequential()
+        self.audio_encoder = AudioEncoder()
+        self.audio_decoder = AudioDecoder()
         self.video_encoder = nn.Sequential()
         self.separator = SeparationNetwork()
         self.mask = nn.Sequential()

@@ -4,7 +4,9 @@ import torch
 import torch.nn as nn
 from torch.nn import functional as F
 
-from src.model.layers import Conv, cfLN, gLN
+from src.model.layers.conv import Conv
+from src.model.layers.normalizations import ChannelFrequencyLayerNorm as cfLN
+from src.model.layers.normalizations import GlobalLayerNorm as gLN
 
 
 class TFAttention(nn.Module):

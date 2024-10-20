@@ -9,5 +9,3 @@ from .normalizations import GlobalLayerNorm as gLN
 from .rtfs_block import RTFSBlock
 from .S3 import S3
 from .separation_network import SeparationNetwork
-from .video_enc import get_video_model
-

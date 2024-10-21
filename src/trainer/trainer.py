@@ -1,3 +1,4 @@
+import torch
 from torch import autocast
 
 from src.metrics.tracker import MetricTracker
@@ -35,7 +36,9 @@ class Trainer(BaseTrainer):
         if self.is_train:
             metric_funcs = self.metrics["train"]
             self.optimizer.zero_grad()
-        with autocast(device_type=self.device, enabled=self.is_amp):
+        with autocast(
+            device_type=self.device, enabled=self.is_amp, dtype=torch.float16
+        ):
             outputs = self.model(**batch)
             batch.update(outputs)
 
@@ -49,8 +52,9 @@ class Trainer(BaseTrainer):
             self._clip_grad_norm()
             self.scaler.step(self.optimizer)
             self.scaler.update()
+        if not self.is_train:
             if self.lr_scheduler is not None:
-                self.lr_scheduler.step()
+                self.lr_scheduler.step(self.scaler.scale(batch["loss"]))
 
         # update metrics for each loss (in case of multiple losses)
         for loss_name in self.config.writer.loss_names:
@@ -77,8 +81,13 @@ class Trainer(BaseTrainer):
 
         # logging scheme might be different for different partitions
         if mode == "train":  # the method is called only every self.log_step steps
-            # Log Stuff
-            pass
+            self.log_predictions(**batch)
         else:
-            # Log Stuff
-            pass
+            self.log_predictions(**batch)
+
+    def log_predictions(self, mix, source, predict, **batch):
+        self.writer.add_audio("mix_audio", mix[0], 16000)
+        self.writer.add_audio("source1", source[0][0], 16000)
+        self.writer.add_audio("source2", source[0][1], 16000)
+        self.writer.add_audio("predict1", predict[0][0], 16000)
+        self.writer.add_audio("predict2", predict[0][1], 16000)

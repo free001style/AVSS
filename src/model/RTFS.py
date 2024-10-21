@@ -2,26 +2,26 @@ import torch
 import torch.nn as nn
 
 from src.model.layers.audio_enc_dec import AudioDecoder, AudioEncoder
+from src.model.layers.S3 import S3
 from src.model.layers.separation_network import SeparationNetwork
 from src.model.videonet.lipreading import Lipreading
-from src.model.layers.S3 import S3
 
 
 class RTFS(nn.Module):
     def __init__(
-            self,
-            channel_dim=256,
-            win_length=255,
-            hop_length=128,
-            n_speakers=2,
-            video_embed_dim=512,
-            fusion_n_head=4,
-            R=12,
-            hidden_dim=64,
-            freqs=128,
-            q_audio=2,
-            q_video=4,
-            lipreading_model_path="./data/other/lipreading_model.pth",
+        self,
+        channel_dim=256,
+        win_length=255,
+        hop_length=128,
+        n_speakers=2,
+        video_embed_dim=512,
+        fusion_n_head=4,
+        R=12,
+        hidden_dim=64,
+        freqs=128,
+        q_audio=2,
+        q_video=4,
+        lipreading_model_path="./data/other/lipreading_model.pth",
     ):
         super(RTFS, self).__init__()
         self.audio_encoder = AudioEncoder(
@@ -31,7 +31,6 @@ class RTFS(nn.Module):
             channel_dim=channel_dim,
             win_length=win_length,
             hop_length=hop_length,
-            n_speakers=n_speakers,
         )
         self.video_encoder = Lipreading()
         self.video_encoder.load_state_dict(
@@ -47,17 +46,20 @@ class RTFS(nn.Module):
             freqs=freqs,
             q_audio=q_audio,
             q_video=q_video,
+            n_speakers=n_speakers,
         )
-        self.s3 = S3(
-            cin_a=channel_dim
-        )
+        self.mask = S3(channel_dim=channel_dim, n_speakers=n_speakers)
 
     def forward(self, mix, video, **batch):
+        """
+        mix b x L
+        video b x n_spk x t x h x w
+        """
         audio_embed = self.audio_encoder(mix)
         video_embed = self.video_encoder(video)
         features = self.separator(audio_embed, video_embed)
-        after_s3_features = self.s3(features, audio_embed)
-        predict = self.audio_decoder(after_s3_features, mix.shape[-1])
+        masked_features = self.mask(features, audio_embed)
+        predict = self.audio_decoder(masked_features, mix.shape[-1])
         return {"predict": predict}
 
     def __str__(self):

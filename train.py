@@ -1,3 +1,4 @@
+import os
 import warnings
 
 import hydra
@@ -5,14 +6,16 @@ import torch
 from hydra.utils import instantiate
 from omegaconf import OmegaConf
 
+import src.datasets
 from src.datasets.data_utils import get_dataloaders
 from src.trainer import Trainer
 from src.utils.init_utils import set_random_seed, setup_saving_and_logging
 
 warnings.filterwarnings("ignore", category=UserWarning)
+os.environ["HYDRA_FULL_ERROR"] = "1"
 
 
-@hydra.main(version_base=None, config_path="src/configs", config_name="baseline")
+@hydra.main(version_base=None, config_path="src/configs", config_name="rtfs")
 def main(config):
     """
     Main script for training. Instantiates the model, optimizer, scheduler,

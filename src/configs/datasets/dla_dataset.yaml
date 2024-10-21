@@ -1,0 +1,6 @@
+train:
+  _target_: src.datasets.Dataset
+  part: "train"
+val:
+  _target_: src.datasets.Dataset
+  part: "val"

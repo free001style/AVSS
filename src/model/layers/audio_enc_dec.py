@@ -28,9 +28,8 @@ class AudioEncoder(nn.Module):
 
 
 class AudioDecoder(nn.Module):
-    def __init__(self, channel_dim=256, win_length=255, hop_length=128, n_speakers=2):
+    def __init__(self, channel_dim=256, win_length=255, hop_length=128):
         super(AudioDecoder, self).__init__()
-        self.n_speakers = n_speakers
         self.win_length = win_length
         self.hop_length = hop_length
         self.conv = nn.ConvTranspose2d(

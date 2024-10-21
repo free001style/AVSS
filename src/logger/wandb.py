@@ -1,7 +1,12 @@
+import os
 from datetime import datetime
 
 import numpy as np
 import pandas as pd
+from dotenv import load_dotenv
+
+load_dotenv()
+KEY = os.getenv("KEY")
 
 
 class WandBWriter:
@@ -40,7 +45,7 @@ class WandBWriter:
         try:
             import wandb
 
-            wandb.login()
+            wandb.login(key=KEY, relogin=True)
 
             self.run_id = run_id
 

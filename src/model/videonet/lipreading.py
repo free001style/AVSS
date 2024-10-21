@@ -33,11 +33,13 @@ class Lipreading(nn.Module):
         )
 
     def forward(self, x):
-        x = x.unsqueeze(1)
-        B, C, T, H, W = x.size()
-        x = self.frontend3D(x)
-        Tnew = x.shape[2]  # output should be B x C2 x Tnew x H x W
+        b, n_spk, t, h, w = x.shape
+        x = x.view(b * n_spk, 1, t, h, w)
+        x = self.frontend3D(x)  # b * n_spk x c' x t' x h x w
+        t = x.shape[2]
         x = threeD_to_2D_tensor(x)
         x = self.trunk(x)
-        x = x.view(B, Tnew, x.size(1)).transpose(1, 2)
+        x = x.view(b * n_spk, t, x.size(1)).transpose(
+            1, 2
+        )  # b * n_spk x embed_dim x t'
         return x

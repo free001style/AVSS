@@ -55,7 +55,7 @@ class Compressor(nn.Module):
                 Conv(
                     channel_dim,
                     channel_dim,
-                    kernel_size=3,
+                    kernel_size=3,  # TODO можно попробовать 4 на 4
                     stride=2 if i > 0 else 1,
                     groups=channel_dim,
                     is_2d=is_2d,
@@ -65,7 +65,7 @@ class Compressor(nn.Module):
                 for i in range(q)
             ]
         )
-        self.pooling = F.adaptive_avg_pool2d if is_2d else F.adaptive_avg_pool2d
+        self.pooling = F.adaptive_avg_pool2d if is_2d else F.adaptive_avg_pool1d
 
     def forward(self, x):
         downsample_list = [self.downsample[0](x)]

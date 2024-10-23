@@ -73,7 +73,7 @@ def main(config):
         skip_oom=config.trainer.get("skip_oom", True),
     )
 
-    trainer.train()
+    # trainer.train()
 
 
 if __name__ == "__main__":

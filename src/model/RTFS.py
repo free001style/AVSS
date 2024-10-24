@@ -13,7 +13,7 @@ class RTFS(nn.Module):
         channel_dim=256,
         win_length=255,
         hop_length=128,
-        n_speakers=2,
+        # n_speakers=2,
         video_embed_dim=512,
         fusion_n_head=4,
         R=12,
@@ -32,11 +32,11 @@ class RTFS(nn.Module):
             win_length=win_length,
             hop_length=hop_length,
         )
-        self.video_encoder = Lipreading()
-        self.video_encoder.load_state_dict(
-            torch.load(lipreading_model_path, weights_only=True)
-        )
-        self.video_encoder.eval().requires_grad_(False)
+        # self.video_encoder = Lipreading()
+        # self.video_encoder.load_state_dict(
+        #     torch.load(lipreading_model_path, weights_only=True)
+        # )
+        # self.video_encoder.eval().requires_grad_(False)
         self.separator = SeparationNetwork(
             channel_dim,
             video_embed_dim,
@@ -46,9 +46,9 @@ class RTFS(nn.Module):
             freqs=freqs,
             q_audio=q_audio,
             q_video=q_video,
-            n_speakers=n_speakers,
+            # n_speakers=n_speakers,
         )
-        self.mask = S3(channel_dim=channel_dim, n_speakers=n_speakers)
+        self.mask = S3(channel_dim=channel_dim)
 
     def forward(self, mix, video, **batch):
         """
@@ -56,8 +56,10 @@ class RTFS(nn.Module):
         video b x n_spk x t x h x w
         """
         audio_embed = self.audio_encoder(mix)
-        video_embed = self.video_encoder(video)
-        features = self.separator(audio_embed, video_embed)
+        # video_embed = self.video_encoder(video)
+        # features = self.separator(audio_embed, video_embed)
+        features = self.separator(audio_embed, None)
+
         masked_features = self.mask(features, audio_embed)
         predict = self.audio_decoder(masked_features, mix.shape[-1])
         return {"predict": predict}

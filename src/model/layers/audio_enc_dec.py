@@ -39,8 +39,8 @@ class AudioDecoder(nn.Module):
         self.window = torch.hann_window(self.win_length)
 
     def forward(self, x, length):
-        b, n_speak, c, t, f = x.shape
-        x = self.conv(x.view(b * n_speak, c, t, f))  # (b, c, time, freq)
+        b, c, t, f = x.shape
+        x = self.conv(x)  # (b, 2, time, freq)
         x = torch.complex(x[:, 0], x[:, 1]).transpose(1, 2)
         audio = torch.istft(
             x,
@@ -49,4 +49,4 @@ class AudioDecoder(nn.Module):
             window=self.window.to(x.device),
             length=length,
         )  # (b, length)
-        return audio.view(b, n_speak, length)
+        return audio

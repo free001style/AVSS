@@ -65,7 +65,7 @@ class Compressor(nn.Module):
                 for i in range(q)
             ]
         )
-        self.pooling = F.adaptive_avg_pool2d if is_2d else F.adaptive_avg_pool2d
+        self.pooling = F.adaptive_avg_pool2d if is_2d else F.adaptive_avg_pool1d
 
     def forward(self, x):
         downsample_list = [self.downsample[0](x)]

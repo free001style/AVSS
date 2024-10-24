@@ -27,17 +27,28 @@ class DualPath(nn.Module):
     def forward(self, x):
         residual = x
         b, c, t, f = x.shape
+        # print('--------------------')
+        # print('dual path forward')
+        # print('start shape:', x.shape)
         f_pad = (
             ceil((f - self.kernel_size) / self.stride) * self.stride + self.kernel_size
         )
+        # print('f_pad:', f_pad)
         x = F.pad(x, (0, f_pad - f), "constant", 0)  # b x D x t x f_pad
+        # print('after padding:', x.shape)
         x = x.permute(0, 2, 1, 3).contiguous().view(b * t, c, f_pad)
+        # print('before unfold shape:', x.shape)
         x = self.unfold(x[..., None])  # b * t x 8D x ...
+        # print('after unfold shape:', x.shape)
         x = self.normalization(x)
+        # print('after normalize shape:', x.shape)
         # since sru don't have batch_first, we have to transpose among other bt and ...
         x = x.permute(2, 0, 1).contiguous()  # ... x b * t x 8D
         x, _ = self.sru(x)  # ... x b * t x 2 * h
         x = x.permute(1, 2, 0)  # b * t x 2 * h x ...
+        # print('before tconv shape:', x.shape)
         x = self.tconv(x)  # b * t x D x f
+        # print('after tconv shape:', x.shape)
+
         x = x.view(b, t, c, f).transpose(1, 2)
         return x + residual

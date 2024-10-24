@@ -4,7 +4,6 @@ from src.metrics.base_metric import BaseMetric
 from torchmetrics.functional.audio import scale_invariant_signal_noise_ratio
 
 
-
 class SI_SNR(BaseMetric):
     def __init__(self, *args, **kwargs):
         """

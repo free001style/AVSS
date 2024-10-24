@@ -32,11 +32,11 @@ class RTFS(nn.Module):
             win_length=win_length,
             hop_length=hop_length,
         )
-        self.video_encoder = Lipreading()
-        self.video_encoder.load_state_dict(
-            torch.load(lipreading_model_path, weights_only=True)
-        )
-        self.video_encoder.eval().requires_grad_(False)
+        # self.video_encoder = Lipreading()
+        # self.video_encoder.load_state_dict(
+        #     torch.load(lipreading_model_path, weights_only=True)
+        # )
+        # self.video_encoder.eval().requires_grad_(False)
         self.separator = SeparationNetwork(
             channel_dim,
             video_embed_dim,
@@ -56,10 +56,14 @@ class RTFS(nn.Module):
         video b x n_spk x t x h x w
         """
         audio_embed = self.audio_encoder(mix)
-        video_embed = self.video_encoder(video)
-        features = self.separator(audio_embed, video_embed)
+        # video_embed = self.video_encoder(video)
+        # features = self.separator(audio_embed, video_embed)
+        print(audio_embed.shape)
+        features = self.separator(audio_embed, None)
+        print(features.shape)
         masked_features = self.mask(features, audio_embed)
         predict = self.audio_decoder(masked_features, mix.shape[-1])
+        print('Shapes are great!')
         return {"predict": predict}
 
     def __str__(self):

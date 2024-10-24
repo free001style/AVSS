@@ -33,15 +33,29 @@ class RTFSBlock(nn.Module):
 
     def forward(self, x):
         residual = x
+        print('================')
+        print('RTFSBLOCK shapes')
+        print('start shape:', x.shape)
         x = self.proj(x)
+        print('after broj shape:', x.shape)
         downsample_list, x = self.compress(x)
+        print('after compress shape:', x.shape)
         x = self.dualpath_f(x)
+        print('after 1 dualpath shape:', x.shape)
         x = x.transpose(2, 3)
         x = self.dualpath_t(x)
+        print('after 2 dualpath shape:', x.shape)
+        
         x = x.transpose(2, 3)
         x = self.tf_attention(x)
+        print('after attention shape:', x.shape)
+
         x = self.decompress(x, downsample_list)
+        print('after decompress shape:', x.shape)
+
         x = self.back_proj(x) + residual
+        print('output shape:', x.shape)
+        print('===========')
         return x
 
 
@@ -76,7 +90,7 @@ class Compressor(nn.Module):
             if self.is_2d:
                 x += self.pooling(downsample_list[i], (x.shape[2:]))
             else:
-                x += self.pooling(downsample_list[i], (x.shape[1:]))
+                x += self.pooling(downsample_list[i], (x.shape[1:])) # смущает
 
         return downsample_list, x
 

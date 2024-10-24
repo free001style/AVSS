@@ -37,13 +37,15 @@ class SeparationNetwork(nn.Module):
         b, c, t, f = audio_embed.shape
         residual = audio_embed
         audio_embed = self.ap(audio_embed)
-        video_embed = self.vp(video_embed)
-        fused = self.fusion(audio_embed, video_embed)
+        # video_embed = self.vp(video_embed)
+        # fused = self.fusion(audio_embed, video_embed)
+        fused = audio_embed
 
         for i in range(self.R):
             if i > 0:
-                fused = fused.view(b, self.n_speakers, c, t, f)
-                fused += residual[:, None, ...]
-                fused = fused.view(b * self.n_speakers, c, t, f)
+                # fused = fused.view(b, self.n_speakers, c, t, f)
+                # fused += residual[:, None, ...]
+                # fused = fused.view(b * self.n_speakers, c, t, f)
+                fused += residual
             fused = self.rtfs_blocks(fused)
         return fused

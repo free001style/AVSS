@@ -4,5 +4,5 @@ train:
   limit: 1
 val:
   _target_: src.datasets.Dataset
-  part: "train"
+  part: "val"
   limit: 1

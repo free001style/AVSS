@@ -65,6 +65,9 @@ class TFAttention(nn.Module):
 
     def forward(self, x):
         b, c, t, f = x.shape
+        print('--------------------')
+        print('tfattention forward')
+        print('start shape:', x.shape)
         residual = x
         all_q = [q(x) for q in self.q_proj]
         all_k = [k(x) for k in self.k_proj]
@@ -73,6 +76,8 @@ class TFAttention(nn.Module):
         Q = torch.cat(all_q, dim=0)  # h_head * b x E x t x f
         K = torch.cat(all_k, dim=0)  # h_head * b x E x t x f
         V = torch.cat(all_v, dim=0)  # h_head * b x D / n_head x t x f
+
+        print('Q shape:', Q.shape)
 
         Q = (
             Q.transpose(1, 2)
@@ -106,6 +111,8 @@ class TFAttention(nn.Module):
         )
         A = A.view(b, self.channel_dim, t, f)
         out = self.proj(A)
+        print('output shape:', out.shape)
+        print('--------------------')
         return out + residual
 
 

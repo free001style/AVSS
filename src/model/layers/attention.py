@@ -139,13 +139,14 @@ class MultiHeadAttention(nn.Module):
         self.dropout = nn.Dropout(dropout)
 
     def forward(self, x):
-        residual = x
         x = x.transpose(1, 2)  # embed_dim is features and t is seq
         x = self.pos_encoding(x)
+        residual = x
         x = self.normalization(x)
         x, _ = self.mhsa(x, x, x)
+        self.dropout(x) + residual
         x = x.transpose(1, 2)
-        return self.dropout(x) + residual
+        return x
 
 
 class FFN(nn.Module):
@@ -176,13 +177,15 @@ class FFN(nn.Module):
             activation=nn.PReLU,
             normalization=gLN,
         )
-        self.dropout = nn.Dropout(dropout)
+        self.dropout1 = nn.Dropout(dropout)
+        self.dropout2 = nn.Dropout(dropout)
+        self.dropout3 = nn.Dropout(dropout)
 
     def forward(self, x):
         residual = x
-        x = self.dropout(self.conv1(x))
-        x = self.dropout(self.conv2(x))
-        x = self.dropout(self.conv3(x))
+        x = self.dropout1(self.conv1(x))
+        x = self.dropout2(self.conv2(x))
+        x = self.dropout3(self.conv3(x))
         return x + residual
 
 

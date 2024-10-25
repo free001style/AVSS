@@ -11,9 +11,10 @@ class PIT_SI_SNR(nn.Module):
 
     def __init__(self):
         super().__init__()
-        self.loss = PermutationInvariantTraining(
-            scale_invariant_signal_noise_ratio, mode="speaker-wise", eval_func="max"
-        )
+        # self.loss = PermutationInvariantTraining(
+        #     scale_invariant_signal_noise_ratio, mode="speaker-wise", eval_func="max"
+        # )
+        self.loss = scale_invariant_signal_noise_ratio
 
     def forward(self, source, predict, **batch):
         """
@@ -24,5 +25,4 @@ class PIT_SI_SNR(nn.Module):
         Returns:
             losses (dict): dict containing calculated loss functions.
         """
-
-        return {"loss": self.loss(predict, source)}
+        return {"loss": self.loss(predict, source).mean(1).mean(0)}

@@ -10,11 +10,11 @@ from src.model.layers.normalizations import GlobalLayerNorm as gLN
 
 class RTFSBlock(nn.Module):
     def __init__(
-        self,
-        channel_dim,
-        hidden_dim,
-        freqs,
-        q=2,
+            self,
+            channel_dim,
+            hidden_dim,
+            freqs,
+            q=2,
     ):
         super(RTFSBlock, self).__init__()
         self.dualpath_f = DualPath()
@@ -65,7 +65,7 @@ class Compressor(nn.Module):
                 for i in range(q)
             ]
         )
-        self.pooling = F.adaptive_avg_pool2d if is_2d else F.adaptive_avg_pool2d
+        self.pooling = F.adaptive_avg_pool2d if is_2d else F.adaptive_avg_pool1d
 
     def forward(self, x):
         downsample_list = [self.downsample[0](x)]
@@ -73,10 +73,11 @@ class Compressor(nn.Module):
             downsample_list.append(self.downsample[i + 1](downsample_list[-1]))
         x = downsample_list[-1]
         for i in range(len(downsample_list) - 1):
-            if self.is_2d:
-                x += self.pooling(downsample_list[i], (x.shape[2:]))
-            else:
-                x += self.pooling(downsample_list[i], (x.shape[1:]))
+            # if self.is_2d:
+            #     x += self.pooling(downsample_list[i], (x.shape[2:]))
+            # else:
+            #     x += self.pooling(downsample_list[i], (x.shape[2:]))
+            x += self.pooling(downsample_list[i], (x.shape[2:]))
 
         return downsample_list, x
 

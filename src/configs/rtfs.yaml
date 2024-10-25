@@ -17,7 +17,7 @@ lr_scheduler:
   factor: 0.5
   patience: 5
 loss_function:
-  _target_: src.loss.PIT_SI_SNR
+  _target_: src.loss.SI_SNR
 trainer:
   log_step: 1
   n_epochs: 1 # 200 on whole dataset

@@ -32,11 +32,11 @@ class RTFS(nn.Module):
             win_length=win_length,
             hop_length=hop_length,
         )
-        # self.video_encoder = Lipreading()
+        self.video_encoder = Lipreading()
         # self.video_encoder.load_state_dict(
         #     torch.load(lipreading_model_path, weights_only=True)
         # )
-        # self.video_encoder.eval().requires_grad_(False)
+        self.video_encoder.eval().requires_grad_(False)
         self.separator = SeparationNetwork(
             channel_dim,
             video_embed_dim,
@@ -53,16 +53,19 @@ class RTFS(nn.Module):
     def forward(self, mix, video, **batch):
         """
         mix b x L
-        video b x n_spk x t x h x w
+        video b x 2 x t x h x w
         """
         audio_embed = self.audio_encoder(mix)
-        # video_embed = self.video_encoder(video)
-        # features = self.separator(audio_embed, video_embed)
-        features = self.separator(audio_embed, None)
+        predicts = []
+        for target_video_num in range(2):
+            video_embed = self.video_encoder(video[:, target_video_num][:, None, ...])
+            features = self.separator(audio_embed, video_embed)
+        # features = self.separator(audio_embed, None)
 
-        masked_features = self.mask(features, audio_embed)
-        predict = self.audio_decoder(masked_features, mix.shape[-1])
-        return {"predict": predict}
+            masked_features = self.mask(features, audio_embed)
+            predicts.append(self.audio_decoder(masked_features, mix.shape[-1]))
+
+        return {"predict": torch.stack(predicts, dim=0).transpose(1, 0)}
 
     def __str__(self):
         """

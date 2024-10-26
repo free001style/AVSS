@@ -7,11 +7,10 @@ from src.model.layers.normalizations import GlobalLayerNorm as gLN
 
 
 class CAFBlock(nn.Module):
-    def __init__(self, channel_dim_a, channel_dim_v, h, n_speakers=1):
+    def __init__(self, channel_dim_a, channel_dim_v, h):
         super(CAFBlock, self).__init__()
         self.h = h
         self.channel_dim_a = channel_dim_a
-        self.n_speakers = n_speakers
         self.conv_gate = Conv(
             channel_dim_a,
             channel_dim_a,
@@ -46,8 +45,6 @@ class CAFBlock(nn.Module):
         )
 
     def forward(self, a1, v1):
-        # a1 = b x Ca x Ta x F
-        # v1 = b x Cv x Tv
         b, _, time, _ = a1.shape
         v_key = F.interpolate(self.conv_key(v1), size=time, mode="nearest")
         v1 = self.conv_attn(v1)  # b x cin_a*h x Tv

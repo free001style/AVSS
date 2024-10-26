@@ -177,15 +177,13 @@ class FFN(nn.Module):
             activation=nn.PReLU,
             normalization=gLN,
         )
-        self.dropout1 = nn.Dropout(dropout)
-        self.dropout2 = nn.Dropout(dropout)
-        self.dropout3 = nn.Dropout(dropout)
+        self.dropout = nn.Dropout(dropout)
 
     def forward(self, x):
         residual = x
-        x = self.dropout1(self.conv1(x))
-        x = self.dropout2(self.conv2(x))
-        x = self.dropout3(self.conv3(x))
+        x = self.dropout(self.conv1(x))
+        x = self.dropout(self.conv2(x))
+        x = self.dropout(self.conv3(x))
         return x + residual
 
 

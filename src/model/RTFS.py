@@ -9,19 +9,19 @@ from src.model.videonet.lipreading import Lipreading
 
 class RTFS(nn.Module):
     def __init__(
-            self,
-            channel_dim=256,
-            win_length=255,
-            hop_length=128,
-            n_speakers=2,
-            video_embed_dim=512,
-            fusion_n_head=4,
-            R=12,
-            hidden_dim=64,
-            freqs=128,
-            q_audio=2,
-            q_video=4,
-            lipreading_model_path="./data/other/lipreading_model.pth",
+        self,
+        channel_dim=256,
+        win_length=256,
+        hop_length=128,
+        n_speakers=2,
+        video_embed_dim=512,
+        fusion_n_head=4,
+        R=12,  # TODO 20
+        hidden_dim=64,
+        freqs=128,
+        q_audio=2,
+        q_video=4,
+        lipreading_model_path="./data/other/lipreading_model.pth",
     ):
         super(RTFS, self).__init__()
         self.video_embed_dim = video_embed_dim
@@ -48,9 +48,8 @@ class RTFS(nn.Module):
             freqs=freqs,
             q_audio=q_audio,
             q_video=q_video,
-            n_speakers=n_speakers,
         )
-        self.mask = S3(channel_dim=channel_dim, n_speakers=n_speakers)
+        self.mask = S3(channel_dim=channel_dim)
 
     def forward(self, mix, video, **batch):
         """
@@ -59,7 +58,9 @@ class RTFS(nn.Module):
         """
         b, l = mix.shape
         audio_embed = self.audio_encoder(mix)
-        video_embed = self.video_encoder(video).view(audio_embed.shape[0], self.n_speakers, self.video_embed_dim, -1)
+        video_embed = self.video_encoder(video).view(
+            audio_embed.shape[0], self.n_speakers, self.video_embed_dim, -1
+        )
         predicts = []
         for i in range(self.n_speakers):
             features = self.separator(audio_embed, video_embed[:, i])

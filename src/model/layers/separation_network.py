@@ -8,16 +8,15 @@ from src.model.layers.vp_block import VPBlock
 
 class SeparationNetwork(nn.Module):
     def __init__(
-            self,
-            channel_dim,
-            video_embed_dim,
-            n_head=4,
-            R=12,
-            hidden_dim=64,
-            freqs=128,
-            q_audio=2,
-            q_video=4,
-            n_speakers=2,
+        self,
+        channel_dim,
+        video_embed_dim,
+        n_head=4,
+        R=12,
+        hidden_dim=64,
+        freqs=128,
+        q_audio=2,
+        q_video=4,
     ):
         super(SeparationNetwork, self).__init__()
         self.R = R
@@ -28,7 +27,6 @@ class SeparationNetwork(nn.Module):
             channel_dim_a=channel_dim,
             channel_dim_v=video_embed_dim,
             h=n_head,
-            n_speakers=n_speakers,
         )
         self.rtfs_blocks = rtfs_block
 

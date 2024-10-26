@@ -17,7 +17,7 @@ lr_scheduler:
   factor: 0.5
   patience: 5
 loss_function:
-  _target_: src.loss.PIT_SI_SNR
+  _target_: src.loss.SISNR
 trainer:
   log_step: 1
   n_epochs: 1 # 200 on whole dataset
@@ -26,7 +26,7 @@ trainer:
   resume_from: null # null or path to the checkpoint dir with *.pth and config.yaml
   device: auto # device name or "auto"
   override: False # if True, will override the previous run with the same name
-  monitor: "max val_SI_SNR" # "off" or "max/min metric_name", i.e. our goal is to maximize/minimize metric
+  monitor: "max val_SI-SNR" # "off" or "max/min metric_name", i.e. our goal is to maximize/minimize metric
   save_period: 5 # checkpoint each save_period epochs in addition to the best epoch
   early_stop: ${trainer.n_epochs} # epochs for early stopping
   save_dir: "saved"

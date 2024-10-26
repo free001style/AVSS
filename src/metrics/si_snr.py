@@ -1,11 +1,10 @@
 import torch
-
-from src.metrics.base_metric import BaseMetric
 from torchmetrics.functional.audio import scale_invariant_signal_noise_ratio
 
+from src.metrics.base_metric import BaseMetric
 
 
-class SI_SNR(BaseMetric):
+class SISNR(BaseMetric):
     def __init__(self, *args, **kwargs):
         """
         Example of a nested metric class. Applies metric function
@@ -31,7 +30,8 @@ class SI_SNR(BaseMetric):
             si-snr (float): calculated si-snr.
         """
         if source.size() != predict.size() or source.ndim != 3:
-            raise TypeError(f"Inputs must be of shape [batch, n_src, time], got {source.size()} and {predict.size()} instead")
-        
-        return scale_invariant_signal_noise_ratio(predict, source)
-        
+            raise TypeError(
+                f"Inputs must be of shape [batch, n_src, time], got {source.size()} and {predict.size()} instead"
+            )
+
+        return scale_invariant_signal_noise_ratio(predict, source).mean()

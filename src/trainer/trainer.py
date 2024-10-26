@@ -37,7 +37,7 @@ class Trainer(BaseTrainer):
             metric_funcs = self.metrics["train"]
             self.optimizer.zero_grad()
         with autocast(
-            device_type=self.device, enabled=self.is_amp, dtype=torch.float16
+                device_type=self.device, enabled=self.is_amp, dtype=torch.float16
         ):
             outputs = self.model(**batch)
             batch.update(outputs)

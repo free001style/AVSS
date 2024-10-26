@@ -3,7 +3,7 @@ from math import ceil
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from sru import SRU
+from sru import SRU, SRUpp
 
 from src.model.layers.normalizations import ChannelLayerNorm as cLN
 
@@ -18,8 +18,14 @@ class DualPath(nn.Module):
         self.unfold = nn.Unfold((kernel_size, 1), stride=(stride, 1))
         self.normalization = cLN(kernel_size * in_channels)
         self.sru = SRU(
-            kernel_size * in_channels, hidden_dim, num_rnn, bidirectional=True
+            kernel_size * in_channels,
+            hidden_dim,
+            num_rnn,
+            bidirectional=True,  # TODO dropout?
         )
+        # self.sru = SRUpp(
+        #     kernel_size * in_channels, hidden_dim, 128, num_rnn, bidirectional=True # TODO try srupp
+        # )
         self.tconv = nn.ConvTranspose1d(
             2 * hidden_dim, in_channels, kernel_size, stride
         )
@@ -36,7 +42,7 @@ class DualPath(nn.Module):
         x = self.normalization(x)
         # since sru don't have batch_first, we have to transpose among other bt and ...
         x = x.permute(2, 0, 1).contiguous()  # ... x b * t x 8D
-        x, _ = self.sru(x)  # ... x b * t x 2 * h
+        x = self.sru(x)[0]  # ... x b * t x 2 * h
         x = x.permute(1, 2, 0)  # b * t x 2 * h x ...
         x = self.tconv(x)  # b * t x D x f
         x = x.view(b, t, c, f).transpose(1, 2)

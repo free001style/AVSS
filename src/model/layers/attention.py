@@ -139,13 +139,14 @@ class MultiHeadAttention(nn.Module):
         self.dropout = nn.Dropout(dropout)
 
     def forward(self, x):
-        residual = x
         x = x.transpose(1, 2)  # embed_dim is features and t is seq
         x = self.pos_encoding(x)
+        residual = x
         x = self.normalization(x)
         x, _ = self.mhsa(x, x, x)
+        self.dropout(x) + residual
         x = x.transpose(1, 2)
-        return self.dropout(x) + residual
+        return x
 
 
 class FFN(nn.Module):

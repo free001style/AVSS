@@ -55,8 +55,9 @@ class Compressor(nn.Module):
                 Conv(
                     channel_dim,
                     channel_dim,
-                    kernel_size=3,
+                    kernel_size=4,
                     stride=2 if i > 0 else 1,
+                    padding="same" if i == 0 else None,
                     groups=channel_dim,
                     is_2d=is_2d,
                     activation=nn.PReLU,
@@ -73,10 +74,7 @@ class Compressor(nn.Module):
             downsample_list.append(self.downsample[i + 1](downsample_list[-1]))
         x = downsample_list[-1]
         for i in range(len(downsample_list) - 1):
-            if self.is_2d:
-                x += self.pooling(downsample_list[i], (x.shape[2:]))
-            else:
-                x += self.pooling(downsample_list[i], (x.shape[1:]))
+            x += self.pooling(downsample_list[i], (x.shape[2:]))
 
         return downsample_list, x
 
@@ -111,7 +109,8 @@ class Interpolation(nn.Module):
         self.w1 = Conv(
             channel_dim,
             channel_dim,
-            3,
+            4,
+            padding="same",
             groups=channel_dim,
             is_2d=is_2d,
             normalization=gLN,
@@ -120,7 +119,8 @@ class Interpolation(nn.Module):
         self.w2 = Conv(
             channel_dim,
             channel_dim,
-            3,
+            4,
+            padding="same",
             groups=channel_dim,
             is_2d=is_2d,
             normalization=gLN,
@@ -128,7 +128,8 @@ class Interpolation(nn.Module):
         self.w3 = Conv(
             channel_dim,
             channel_dim,
-            3,
+            4,
+            padding="same",
             groups=channel_dim,
             is_2d=is_2d,
             normalization=gLN,

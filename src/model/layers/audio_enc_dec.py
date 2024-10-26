@@ -10,7 +10,8 @@ class AudioEncoder(nn.Module):
         super(AudioEncoder, self).__init__()
         self.win_length = win_length
         self.hop_length = hop_length
-        self.conv = Conv(2, channel_dim, 3, normalization=gLN, activation=nn.PReLU)
+        # self.conv = Conv(2, channel_dim, 3, normalization=gLN, activation=nn.PReLU)
+        self.conv = Conv(2, channel_dim, 3)
         self.window = torch.hann_window(self.win_length)
 
     def forward(self, audio):
@@ -33,14 +34,14 @@ class AudioDecoder(nn.Module):
         self.win_length = win_length
         self.hop_length = hop_length
         self.conv = nn.ConvTranspose2d(
-            channel_dim, 2, kernel_size=(3, 3), padding=(1, 1), bias=False
+            channel_dim, 2, kernel_size=3, padding=1, bias=False
         )
         nn.init.xavier_uniform_(self.conv.weight)
         self.window = torch.hann_window(self.win_length)
 
     def forward(self, x, length):
-        b, n_speak, c, t, f = x.shape
-        x = self.conv(x.view(b * n_speak, c, t, f))  # (b, c, time, freq)
+        b, c, t, f = x.shape
+        x = self.conv(x)  # (b, c, time, freq)
         x = torch.complex(x[:, 0], x[:, 1]).transpose(1, 2)
         audio = torch.istft(
             x,
@@ -49,4 +50,4 @@ class AudioDecoder(nn.Module):
             window=self.window.to(x.device),
             length=length,
         )  # (b, length)
-        return audio.view(b, n_speak, length)
+        return audio.view(b, length)

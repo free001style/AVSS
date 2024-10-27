@@ -1,29 +1,32 @@
 import torch
 
-from torchmetrics.functional.audio import scale_invariant_signal_noise_ratio as si_snr
+from torchmetrics.functional.audio import signal_distortion_ratio as sdr
 from src.metrics.base_metric import BaseMetric
 
 
-class SISNR(BaseMetric):
+class SDRi(BaseMetric):
     def __init__(self, *args, **kwargs):
         """
-        Applies si-snr metric function
+        Applies sdri metric function
+
         """
         super().__init__(*args, **kwargs)
 
-    def __call__(self, source, predict, **kwargs):
+    def __call__(self, source, predict, mix, **kwargs):
         """
         Metric calculation logic.
 
         Args:
             source (Tensor): ground-truth waveforms.
             predict (Tensor): predicted waveforms.
+            mix (Tensor): mixed waveform.
+
         Returns:
-            si-snr (float): calculated si-snr.
+            sdri (float): calculated sdri.
         """
         if source.size() != predict.size() or source.ndim != 3:
             raise TypeError(
                 f"Inputs must be of shape [batch, n_src, time], got {source.size()} and {predict.size()} instead"
             )
 
-        return si_snr(predict, source).mean()
+        return torch.mean(sdr(predict, source) - sdr(mix.repeat(2, 1, 1).transpose(1, 0), source))

@@ -42,6 +42,7 @@ def main(config):
 
     # build model architecture, then print to console
     model = instantiate(config.model).to(device)
+    # model = torch.nn.DataParallel(model) # TODO
     logger.info(model)
 
     # get function handles of loss and metrics

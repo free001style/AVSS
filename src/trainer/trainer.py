@@ -37,7 +37,7 @@ class Trainer(BaseTrainer):
             metric_funcs = self.metrics["train"]
             self.optimizer.zero_grad()
         with autocast(
-                device_type=self.device, enabled=self.is_amp, dtype=torch.float16
+            device_type=self.device, enabled=self.is_amp, dtype=torch.float16
         ):
             outputs = self.model(**batch)
             batch.update(outputs)
@@ -52,9 +52,8 @@ class Trainer(BaseTrainer):
             self._clip_grad_norm()
             self.scaler.step(self.optimizer)
             self.scaler.update()
-        if not self.is_train:
             if self.lr_scheduler is not None:
-                self.lr_scheduler.step(self.scaler.scale(batch["loss"]))
+                self.lr_scheduler.step()
 
         # update metrics for each loss (in case of multiple losses)
         for loss_name in self.config.writer.loss_names:

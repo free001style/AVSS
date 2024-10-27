@@ -3,7 +3,6 @@ from math import ceil
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from sru import SRU, SRUpp
 
 from src.model.layers.normalizations import ChannelLayerNorm as cLN
 
@@ -17,15 +16,12 @@ class DualPath(nn.Module):
         self.stride = stride
         self.unfold = nn.Unfold((kernel_size, 1), stride=(stride, 1))
         self.normalization = cLN(kernel_size * in_channels)
-        self.sru = SRU(
+        self.sru = nn.LSTM(
             kernel_size * in_channels,
             hidden_dim,
             num_rnn,
-            bidirectional=True,  # TODO dropout?
-        )
-        # self.sru = SRUpp(
-        #     kernel_size * in_channels, hidden_dim, 128, num_rnn, bidirectional=True # TODO try srupp
-        # )
+            bidirectional=True,
+        )  # TODO dropout?
         self.tconv = nn.ConvTranspose1d(
             2 * hidden_dim, in_channels, kernel_size, stride
         )

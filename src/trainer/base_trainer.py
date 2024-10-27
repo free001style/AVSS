@@ -490,6 +490,16 @@ class BaseTrainer:
                 self.writer.add_checkpoint(best_path, str(self.checkpoint_dir.parent))
             self.logger.info("Saving current best: model_best.pth ...")
 
+    @staticmethod
+    def remove_module_prefix(state_dict, prefix):
+        new_state_dict = {}
+
+        for k, v in state_dict.items():
+            new_key = k.replace(prefix, "", 1)
+            new_state_dict[new_key] = v
+
+        return new_state_dict
+
     def _resume_checkpoint(self, resume_path):
         """
         Resume from a saved checkpoint (in case of server crash, etc.).
@@ -514,6 +524,7 @@ class BaseTrainer:
                 "Warning: Architecture configuration given in the config file is different from that "
                 "of the checkpoint. This may yield an exception when state_dict is loaded."
             )
+        # self.model.load_state_dict(self.remove_module_prefix(checkpoint["state_dict"], "module."))  # TODO
         self.model.load_state_dict(checkpoint["state_dict"])
 
         # load optimizer state from checkpoint only when optimizer type is not changed.

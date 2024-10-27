@@ -17,8 +17,10 @@ class SeparationNetwork(nn.Module):
         freqs=128,
         q_audio=2,
         q_video=4,
+        use_video=True,
     ):
         super(SeparationNetwork, self).__init__()
+        self.use_video = use_video
         self.R = R
         rtfs_block = RTFSBlock(channel_dim, hidden_dim, freqs, q_audio)
         self.vp = VPBlock(q_video, video_embed_dim, hidden_dim)
@@ -27,14 +29,18 @@ class SeparationNetwork(nn.Module):
             channel_dim_a=channel_dim,
             channel_dim_v=video_embed_dim,
             h=n_head,
+            use_video=use_video
         )
         self.rtfs_blocks = rtfs_block
 
     def forward(self, audio_embed, video_embed):
         residual = audio_embed
         audio_embed = self.ap(audio_embed)
-        video_embed = self.vp(video_embed)
-        fused = self.fusion(audio_embed, video_embed)
+        if self.use_video:
+            video_embed = self.vp(video_embed)
+            fused = self.fusion(audio_embed, video_embed)
+        else:
+            fused = self.fusion(audio_embed, None)
         for i in range(self.R):
             if i > 0:
                 fused += residual

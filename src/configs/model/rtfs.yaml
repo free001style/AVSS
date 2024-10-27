@@ -1,2 +1,14 @@
 _target_: src.model.RTFS
+channel_dim: 256
+win_length: 256
+hop_length: 128
+n_speakers: 2
+video_embed_dim: 512
+fusion_n_head: 4
+R: 12  # TODO 20
+hidden_dim: 64
+freqs: 128
+q_audio: 2
+q_video: 4
+lipreading_model_path: "./data/other/lipreading_model.pth"
 use_video: True

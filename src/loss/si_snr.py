@@ -1,6 +1,5 @@
 import torch
 from torch import nn
-from torchmetrics.audio.pit import PermutationInvariantTraining
 from torchmetrics.functional.audio import scale_invariant_signal_noise_ratio
 
 
@@ -22,4 +21,6 @@ class SISNR(nn.Module):
         Returns:
             losses (dict): dict containing calculated loss functions.
         """
-        return {"loss": self.loss(predict, source).mean()}
+        loss1 = self.loss(predict, source).mean()
+        loss2 = torch.abs(predict - source).mean()
+        return {"loss": loss1 - loss2, "sisnr": loss1, "mae": loss2}

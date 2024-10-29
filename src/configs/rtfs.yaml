@@ -1,7 +1,7 @@
 defaults:
   - model: rtfs
   - writer: wandb
-  - metrics: si_snr
+  - metrics: metrics
   - datasets: dla_dataset
   - dataloader: example
   - transforms: example

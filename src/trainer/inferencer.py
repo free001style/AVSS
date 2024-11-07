@@ -1,4 +1,5 @@
 import torch
+from torch import autocast
 from tqdm.auto import tqdm
 
 from src.metrics.tracker import MetricTracker
@@ -58,6 +59,8 @@ class Inferencer(BaseTrainer):
 
         self.model = model
         self.batch_transforms = batch_transforms
+
+        self.is_amp = config.inferencer.get("is_amp", True)
 
         # define dataloaders
         self.evaluation_dataloaders = {k: v for k, v in dataloaders.items()}
@@ -119,8 +122,14 @@ class Inferencer(BaseTrainer):
         batch = self.move_batch_to_device(batch)
         batch = self.transform_batch(batch)  # transform batch on device -- faster
 
-        outputs = self.model(**batch)
-        batch.update(outputs)
+        with autocast(
+            device_type=self.device, enabled=self.is_amp, dtype=torch.float16
+        ):
+            outputs = self.model(**batch)
+            outputs["predict"] /= torch.max(torch.abs(outputs["predict"]), dim=1)[
+                :, None
+            ]
+            batch.update(outputs)
 
         if metrics is not None:
             for met in self.metrics["inference"]:

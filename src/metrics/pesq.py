@@ -1,5 +1,4 @@
-import torch
-from torchmetrics.audio import PerceptualEvaluationSpeechQuality
+from torchmetrics.audio.pesq import PerceptualEvaluationSpeechQuality
 
 from src.metrics.base_metric import BaseMetric
 
@@ -29,4 +28,4 @@ class PESQ(BaseMetric):
                 f"Inputs must be of shape [batch, n_src, time], got {source.size()} and {predict.size()} instead"
             )
 
-        return self.metric(predict, source, 16000, "wb").mean()
+        return self.metric(predict, source).mean()

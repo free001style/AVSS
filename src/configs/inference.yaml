@@ -11,3 +11,4 @@ inferencer:
   seed: 1
   save_path: "tmp"
   from_pretrained: ""
+  is_amp: True

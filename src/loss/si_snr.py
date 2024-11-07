@@ -21,6 +21,5 @@ class SISNR(nn.Module):
         Returns:
             losses (dict): dict containing calculated loss functions.
         """
-        loss1 = self.loss(predict, source).mean()
-        loss2 = torch.abs(predict - source).mean()
-        return {"loss": loss1 - loss2, "sisnr": loss1, "mae": loss2}
+        loss = self.loss(predict, source).mean()
+        return {"loss": loss}

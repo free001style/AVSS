@@ -88,5 +88,9 @@ class Trainer(BaseTrainer):
         self.writer.add_audio("mix_audio", mix[0], 16000)
         self.writer.add_audio("source1", source[0][0], 16000)
         self.writer.add_audio("source2", source[0][1], 16000)
-        self.writer.add_audio("predict1", predict[0][0], 16000)
-        self.writer.add_audio("predict2", predict[0][1], 16000)
+        self.writer.add_audio(
+            "predict1", predict[0][0] / torch.max(torch.abs(predict[0][0])), 16000
+        )
+        self.writer.add_audio(
+            "predict2", predict[0][1] / torch.max(torch.abs(predict[0][1])), 16000
+        )

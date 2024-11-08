@@ -1,4 +1,7 @@
-import torch
+"""
+Original implementation from https://github.com/mpc001/Lipreading_using_Temporal_Convolutional_Networks/tree/master
+"""
+
 import torch.nn as nn
 
 from src.model.videonet.resnet import BasicBlock, ResNet

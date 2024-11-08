@@ -10,7 +10,18 @@ from src.model.layers.normalizations import GlobalLayerNorm as gLN
 
 
 class TFAttention(nn.Module):
+    """
+    Implementation of Time-Frequency Attention from https://arxiv.org/abs/2209.03952.
+    """
+
     def __init__(self, freqs, channel_dim=64, hidden_dim=8, n_heads=4):
+        """
+        Args:
+            freqs (int): number of frequencies (needs for cfLN).
+            channel_dim (int): channel dimension (D in paper).
+            hidden_dim (int): channel dimension after linear projection (E in paper).
+            n_heads (int): number of heads.
+        """
         super(TFAttention, self).__init__()
         self.channel_dim = channel_dim
         self.n_heads = n_heads
@@ -64,15 +75,20 @@ class TFAttention(nn.Module):
         )
 
     def forward(self, x):
+        """
+        Args:
+            x (Tensor): (B, D, T, F).
+        Returns:
+            predict (Tensor): (B, D, T, F).
+        """
         b, c, t, f = x.shape
         residual = x
-        all_q = [q(x) for q in self.q_proj]
-        all_k = [k(x) for k in self.k_proj]
-        all_v = [v(x) for v in self.v_proj]
 
-        Q = torch.cat(all_q, dim=0)  # h_head * b x E x t x f
-        K = torch.cat(all_k, dim=0)  # h_head * b x E x t x f
-        V = torch.cat(all_v, dim=0)  # h_head * b x D / n_head x t x f
+        Q = torch.cat([q(x) for q in self.q_proj], dim=0)  # h_head * b x E x t x f
+        K = torch.cat([k(x) for k in self.k_proj], dim=0)  # h_head * b x E x t x f
+        V = torch.cat(
+            [v(x) for v in self.v_proj], dim=0
+        )  # h_head * b x D / n_head x t x f
 
         Q = (
             Q.transpose(1, 2)
@@ -144,7 +160,7 @@ class MultiHeadAttention(nn.Module):
         residual = x
         x = self.normalization(x)
         x, _ = self.mhsa(x, x, x)
-        self.dropout(x) + residual
+        x = self.dropout(x) + residual  # TODO
         x = x.transpose(1, 2)
         return x
 

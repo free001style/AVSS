@@ -9,6 +9,14 @@ from src.model.layers.normalizations import GlobalLayerNorm as gLN
 
 
 class RTFSBlock(nn.Module):
+    """
+    RTFS Block:
+        1) Compression phase
+        2) Processing frequency with DualPath
+        3) Processing time with DualPath
+        4) Reconstruction phase.
+    """
+
     def __init__(
         self,
         channel_dim,
@@ -16,6 +24,13 @@ class RTFSBlock(nn.Module):
         freqs,
         q=2,
     ):
+        """
+        Args:
+            channel_dim (int): audio channel dimension (C_a in paper).
+            hidden_dim (int): channel dimension in RTFS block (D in paper).
+            freqs (int): number of frequencies (needs for cfLN).
+            q (int): number of spacial dim decreasing in compression phase.
+        """
         super(RTFSBlock, self).__init__()
         self.dualpath_f = DualPath()
         self.dualpath_t = DualPath()
@@ -32,6 +47,12 @@ class RTFSBlock(nn.Module):
         self.decompress = Decompressor(q, hidden_dim)
 
     def forward(self, x):
+        """
+        Args:
+            x (Tensor): (B, C_a, T_a, F) tensor of fused features.
+        Returns:
+            predict: (B, C_a, T_a, F).
+        """
         residual = x
         x = self.proj(x)
         downsample_list, x = self.compress(x)
@@ -69,6 +90,13 @@ class Compressor(nn.Module):
         self.pooling = F.adaptive_avg_pool2d if is_2d else F.adaptive_avg_pool1d
 
     def forward(self, x):
+        """
+        Args:
+            x (Tensor): (B, C, *).
+        Returns:
+            downsample_list (List[Tensor]): list of downsampled tensors.
+            predict (Tensor): (B, D, *).
+        """
         downsample_list = [self.downsample[0](x)]
         for i in range(self.q - 1):
             downsample_list.append(self.downsample[i + 1](downsample_list[-1]))
@@ -92,6 +120,13 @@ class Decompressor(nn.Module):
         )
 
     def forward(self, x, downsample_list):
+        """
+        Args:
+            x (Tensor): (B, D, *).
+            downsample_list (List[Tensor]): list of downsampled tensors.
+        Returns:
+            predict (Tensor): (B, C, *).
+        """
         i_list = [
             self.first_phase[i](downsample_list[i], x)
             for i in range(len(downsample_list))
@@ -136,6 +171,13 @@ class Interpolation(nn.Module):
         )
 
     def forward(self, m, n):
+        """
+        Args:
+            m (Tensor): (B, D, *).
+            n (Tensor): (B, D, *).
+        Returns:
+            predict (Tensor): (B, D, *).
+        """
         m = self.w2(m)
         n1 = F.interpolate(self.w1(n), size=m.shape[2:], mode="nearest")
         n2 = F.interpolate(self.w3(n), size=m.shape[2:], mode="nearest")

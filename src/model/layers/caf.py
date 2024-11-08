@@ -7,9 +7,18 @@ from src.model.layers.normalizations import GlobalLayerNorm as gLN
 
 
 class CAFBlock(nn.Module):
-    def __init__(self, channel_dim_a, channel_dim_v, h, use_video=True):
+    """
+    Cross-Dimensional Attention Fusion block
+    """
+
+    def __init__(self, channel_dim_a, channel_dim_v, h):
+        """
+        Args:
+            channel_dim_a (int): audio channel dimension (C_a in paper).
+            channel_dim_v (int): video embedding dimension (C_v in paper).
+            h (int): number of heads.
+        """
         super(CAFBlock, self).__init__()
-        self.use_video = use_video
         self.h = h
         self.channel_dim_a = channel_dim_a
         self.conv_gate = Conv(
@@ -45,22 +54,25 @@ class CAFBlock(nn.Module):
             normalization=gLN,
         )
 
-    def forward(self, a1, v1=None):
+    def forward(self, a1, v1):
+        """
+        Args:
+            a1 (Tensor): (B, C_a, T_a, F) audio embedding after AP block.
+            v1 (Tensor): (B, C_v, T_v) video embedding after VP block.
+        Returns:
+            fused (Tensor): (B, C_a, T_a, F).
+        """
+        b, c, t, f = a1.shape
         a_val = self.conv_val(a1)
         a_gate = self.conv_gate(a1)
-        if not self.use_video:
-            return a_val + a_gate
-
-        b, _, time, _ = a1.shape
-        v_key = F.interpolate(self.conv_key(v1), size=time, mode="nearest")
+        v_key = F.interpolate(self.conv_key(v1), size=t, mode="nearest")
         v1 = self.conv_attn(v1)  # b x cin_a*h x Tv
         vm = torch.mean(
             v1.view(b, self.channel_dim_a, self.h, -1),
             dim=2,
-            keepdim=False,
         ).view(b, self.channel_dim_a, -1)
-        v_attn = F.interpolate(F.softmax(vm, -1), size=time, mode="nearest")
+        v_attn = F.interpolate(F.softmax(vm, -1), size=t, mode="nearest")
 
         f1 = v_attn[..., None] * a_val
         f2 = v_key[..., None] * a_gate
-        return f1 + f2  # b x Ca x Ta x F
+        return f1 + f2

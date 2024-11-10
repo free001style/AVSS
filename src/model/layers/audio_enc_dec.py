@@ -21,7 +21,7 @@ class AudioEncoder(nn.Module):
         self.n_fft = n_fft
         self.hop_length = hop_length
         self.conv = Conv(2, channel_dim, 3)
-        self.window = torch.hann_window(self.win_length)
+        self.window = torch.hann_window(n_fft)
 
     def forward(self, audio):
         """
@@ -55,7 +55,7 @@ class AudioDecoder(nn.Module):
             channel_dim, 2, kernel_size=3, padding=1, bias=False
         )
         nn.init.xavier_uniform_(self.conv.weight)
-        self.window = torch.hann_window(self.win_length)
+        self.window = torch.hann_window(n_fft)
 
     def forward(self, x, length):
         """

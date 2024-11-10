@@ -1,32 +1,23 @@
 import torch
-
 from torchmetrics.functional.audio import scale_invariant_signal_noise_ratio as si_snr
+
 from src.metrics.base_metric import BaseMetric
 
 
 class SISNRi(BaseMetric):
     def __init__(self, *args, **kwargs):
         """
-        Applies si-snri metric function
-
+        Applies SI-SNRi metric function.
         """
         super().__init__(*args, **kwargs)
 
-    def __call__(self, source, predict, mix, **kwargs):
+    def __call__(self, source, predict, mix, **batch):
         """
-        Metric calculation logic.
-
         Args:
-            source (Tensor): ground-truth waveforms.
-            predict (Tensor): predicted waveforms.
-            mix (Tensor): mixed waveform.
-
+            source (Tensor): (B, n_spk, T) ground-truth speech.
+            predict (Tensor): (B, n_spk, T) predicted speech.
+            mix (Tensor): (B, T) mixed speech.
         Returns:
-            si-snri (float): calculated si-snri.
+            SI-SNRi (Tensor): calculated SI-SNRi.
         """
-        if source.size() != predict.size() or source.ndim != 3:
-            raise TypeError(
-                f"Inputs must be of shape [batch, n_src, time], got {source.size()} and {predict.size()} instead"
-            )
-
-        return torch.mean(si_snr(predict, source) - si_snr(mix.repeat(2, 1, 1).transpose(1, 0), source))
+        return torch.mean(si_snr(predict, source) - si_snr(mix[:, None, :], source))

@@ -71,14 +71,15 @@ class RTFS(nn.Module):
             freqs=freqs,
             q_audio=q_audio,
             q_video=q_video,
+            use_video=use_video,
         )
         self.mask = S3(channel_dim=channel_dim)
 
-    def forward(self, mix, video=None, **batch):
+    def forward(self, mix, video, **batch):
         """
         Args:
             mix (Tensor): (B, L) tensor of mix audio.
-            video (Tensor): (B, ) tensor of sequence of lips frames, if video isn't used than None.
+            video (Tensor): (B, n_spk, T, H, W) tensor of sequence of lips frames, if video isn't used then None.
         Returns:
             predict (dict): dict with key predict: (B, n_spk, length) -- separated audio for each speaker.
         """

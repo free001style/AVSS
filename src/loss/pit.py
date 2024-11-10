@@ -1,16 +1,17 @@
 import torch
 from torch import nn
+from torchmetrics.audio import PermutationInvariantTraining
 from torchmetrics.functional.audio import scale_invariant_signal_noise_ratio
 
 
-class SISNR(nn.Module):
+class PIT(nn.Module):
     """
-    SI-SNR loss class.
+    Permutation Invariant Training with SI-SNR loss.
     """
 
     def __init__(self):
         super().__init__()
-        self.loss = scale_invariant_signal_noise_ratio
+        self.loss = PermutationInvariantTraining(scale_invariant_signal_noise_ratio)
 
     def forward(self, source, predict, **batch):
         """

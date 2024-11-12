@@ -1,4 +1,4 @@
-inference: # metrics that are calculated during inference (eval)
+inference: # metrics that are calculated during inference
   - _target_: src.metrics.SISNRi
     name: "SI-SNRi"
   - _target_: src.metrics.SDRi

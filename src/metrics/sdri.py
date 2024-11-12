@@ -20,4 +20,7 @@ class SDRi(BaseMetric):
         Returns:
             metric (Tensor): calculated SDRi.
         """
-        return torch.mean(sdr(predict, source) - sdr(mix[:, None, :], source))
+        return torch.mean(
+            sdr(predict, source)
+            - sdr(mix.unsqueeze(1).expand(-1, source.shape[1], -1), source)
+        )

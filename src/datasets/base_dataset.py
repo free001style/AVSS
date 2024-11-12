@@ -68,8 +68,12 @@ class BaseDataset(Dataset):
         """
         data_dict = self._index[ind]
         mix = self.load_audio(data_dict["mix"]).squeeze()
-        label1 = self.load_audio(data_dict["label1"]).squeeze()
-        label2 = self.load_audio(data_dict["label2"]).squeeze()
+        if data_dict["label1"] == data_dict["label2"]:
+            label1 = None
+            label2 = None
+        else:
+            label1 = self.load_audio(data_dict["label1"]).squeeze()
+            label2 = self.load_audio(data_dict["label2"]).squeeze()
         mouths1 = self.load_np_object(data_dict["mouths1"])
         mouths2 = self.load_np_object(data_dict["mouths2"])
 
@@ -79,9 +83,7 @@ class BaseDataset(Dataset):
             "label2": label2,
             "mouths1": mouths1,
             "mouths2": mouths2,
-            "mix_path": data_dict["mix"],
-            "label1_path": data_dict["label1"],
-            "label2_path": data_dict["label2"],
+            "mix_path": data_dict["label1"],
         }
         instance_data = self.preprocess_data(instance_data)
 
@@ -115,10 +117,10 @@ class BaseDataset(Dataset):
 
     def load_np_object(self, path):
         """
-        Load object from disk.
+        Load np object from disk.
 
         Args:
-            path (str): path to the object.
+            path (str): path to the np object.
         Returns:
             data_object (Tensor):
         """

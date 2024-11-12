@@ -1,4 +1,5 @@
 import torch
+import torchaudio
 from torch import autocast
 from tqdm.auto import tqdm
 
@@ -25,6 +26,7 @@ class Inferencer(BaseTrainer):
         metrics=None,
         batch_transforms=None,
         skip_model_load=False,
+        separate_only=True,
     ):
         """
         Initialize the Inferencer.
@@ -35,7 +37,7 @@ class Inferencer(BaseTrainer):
             device (str): device for tensors and model.
             dataloaders (dict[DataLoader]): dataloaders for different
                 sets of data.
-            save_path (str): path to save model predictions and other
+            save_path (Path): path to save model predictions and other
                 information.
             metrics (dict): dict with the definition of metrics for
                 inference (metrics[inference]). Each metric is an instance
@@ -82,6 +84,7 @@ class Inferencer(BaseTrainer):
         if not skip_model_load:
             # init model
             self._from_pretrained(config.inferencer.get("from_pretrained"))
+        self.separate_only = separate_only
 
     def run_inference(self):
         """
@@ -126,39 +129,36 @@ class Inferencer(BaseTrainer):
             device_type=self.device, enabled=self.is_amp, dtype=torch.float16
         ):
             outputs = self.model(**batch)
-            outputs["predict"] /= torch.max(torch.abs(outputs["predict"]), dim=1)[
-                :, None
-            ]
+            outputs["predict"] /= torch.max(
+                torch.abs(outputs["predict"]), dim=1, keepdim=True
+            )[0]
             batch.update(outputs)
 
         if metrics is not None:
             for met in self.metrics["inference"]:
                 metrics.update(met.name, met(**batch))
 
-        # Some saving logic. This is an example
-        # Use if you need to save predictions on disk
+        if self.save_path is not None:
+            batch_size = batch["predict"].shape[0]
+            for i in range(batch_size):
+                mix = batch["mix"][i].clone()
+                predict = batch["predict"][i].clone()
 
-        # batch_size = batch["logits"].shape[0]
-        # current_id = batch_idx * batch_size
-        #
-        # for i in range(batch_size):
-        #     # clone because of
-        #     # https://github.com/pytorch/pytorch/issues/1995
-        #     logits = batch["logits"][i].clone()
-        #     label = batch["labels"][i].clone()
-        #     pred_label = logits.argmax(dim=-1)
-        #
-        #     output_id = current_id + i
-        #
-        #     output = {
-        #         "pred_label": pred_label,
-        #         "label": label,
-        #     }
-        #
-        #     if self.save_path is not None:
-        #         # you can use safetensors or other lib here
-        #         torch.save(output, self.save_path / part / f"output_{output_id}.pth")
-
+                torchaudio.save(
+                    self.save_path / "mix" / batch["mix_path"][i],
+                    mix.unsqueeze(0),
+                    16000,
+                )
+                torchaudio.save(
+                    self.save_path / "s1" / batch["mix_path"][i],
+                    predict[0].unsqueeze(0),
+                    16000,
+                )
+                torchaudio.save(
+                    self.save_path / "s2" / batch["mix_path"][i],
+                    predict[1].unsqueeze(0),
+                    16000,
+                )
         return batch
 
     def _inference_part(self, part, dataloader):
@@ -175,11 +175,14 @@ class Inferencer(BaseTrainer):
         self.is_train = False
         self.model.eval()
 
-        self.evaluation_metrics.reset()
+        if not self.separate_only:
+            self.evaluation_metrics.reset()
 
         # create Save dir
         if self.save_path is not None:
-            (self.save_path / part).mkdir(exist_ok=True, parents=True)
+            (self.save_path / "mix").mkdir(exist_ok=True, parents=True)
+            (self.save_path / "s1").mkdir(exist_ok=True, parents=True)
+            (self.save_path / "s2").mkdir(exist_ok=True, parents=True)
 
         with torch.no_grad():
             for batch_idx, batch in tqdm(
@@ -194,4 +197,21 @@ class Inferencer(BaseTrainer):
                     metrics=self.evaluation_metrics,
                 )
 
-        return self.evaluation_metrics.result()
+        return self.evaluation_metrics.result() if not self.separate_only else None
+
+    def move_batch_to_device(self, batch):
+        """
+        Move all necessary tensors to the device.
+
+        Args:
+            batch (dict): dict-based batch containing the data from
+                the dataloader.
+        Returns:
+            batch (dict): dict-based batch containing the data from
+                the dataloader with some of the tensors on the device.
+        """
+        for tensor_for_device in self.cfg_trainer.device_tensors:
+            if tensor_for_device == "source" and self.separate_only:
+                continue
+            batch[tensor_for_device] = batch[tensor_for_device].to(self.device)
+        return batch

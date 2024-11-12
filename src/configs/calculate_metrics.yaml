@@ -1,0 +1,7 @@
+defaults:
+  - datasets: calculate_metrics
+  - dataloader: example
+  - metrics: inference
+  - _self_
+predict_dir: null
+gt_dir: null

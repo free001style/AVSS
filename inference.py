@@ -1,3 +1,4 @@
+import os
 import warnings
 
 import hydra
@@ -10,6 +11,7 @@ from src.utils.init_utils import set_random_seed
 from src.utils.io_utils import ROOT_PATH
 
 warnings.filterwarnings("ignore", category=UserWarning)
+os.environ["HYDRA_FULL_ERROR"] = "1"
 
 
 @hydra.main(version_base=None, config_path="src/configs", config_name="inference")
@@ -32,13 +34,14 @@ def main(config):
     # setup data_loader instances
     # batch_transforms should be put on device
     dataloaders, batch_transforms = get_dataloaders(config, device)
+    separate_only = dataloaders["test"].dataset.separate_only
 
     # build model architecture, then print to console
     model = instantiate(config.model).to(device)
     print(model)
 
     # get metrics
-    metrics = instantiate(config.metrics)
+    metrics = instantiate(config.metrics) if not separate_only else None
 
     # save_path for model predictions
     save_path = ROOT_PATH / "data" / "saved" / config.inferencer.save_path
@@ -53,9 +56,13 @@ def main(config):
         save_path=save_path,
         metrics=metrics,
         skip_model_load=False,
+        separate_only=separate_only,
     )
 
     logs = inferencer.run_inference()
+    if separate_only:
+        print("The mixes are successfully separated and saved to {}".format(save_path))
+        return
 
     for part in logs.keys():
         for key, value in logs[part].items():

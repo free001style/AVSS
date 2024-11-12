@@ -20,4 +20,7 @@ class SISNRi(BaseMetric):
         Returns:
             SI-SNRi (Tensor): calculated SI-SNRi.
         """
-        return torch.mean(si_snr(predict, source) - si_snr(mix[:, None, :], source))
+        return torch.mean(
+            si_snr(predict, source)
+            - si_snr(mix.unsqueeze(1).expand(-1, source.shape[1], -1), source)
+        )

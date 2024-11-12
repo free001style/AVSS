@@ -12,6 +12,7 @@ hydra-core
 soundfile
 pesq
 pystoi
+gdown
 
 black
 isort

@@ -43,6 +43,7 @@ class Dataset(BaseDataset):
                         "label2": s2_path,
                         "mouths1": mouths1_path,
                         "mouths2": mouths2_path,
+                        "name": mix,
                     }
                 )
         return index

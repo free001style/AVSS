@@ -83,7 +83,7 @@ class BaseDataset(Dataset):
             "label2": label2,
             "mouths1": mouths1,
             "mouths2": mouths2,
-            "mix_path": data_dict["label1"],
+            "name": data_dict["name"],
         }
         instance_data = self.preprocess_data(instance_data)
 

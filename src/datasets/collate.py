@@ -22,7 +22,7 @@ def collate_fn(dataset_items: list[dict]):
         if dataset_items[0]["label1"] is not None
         else None,
         "video": torch.zeros((batch_size, 2, time_video, h, w)),
-        "mix_path": [""] * batch_size,
+        "name": [""] * batch_size,
     }
     for i in range(batch_size):
         result_batch["mix"][i] = dataset_items[i]["mix"]
@@ -31,7 +31,7 @@ def collate_fn(dataset_items: list[dict]):
             result_batch["source"][i][1] = dataset_items[i]["label2"]
         result_batch["video"][i][0] = dataset_items[i]["mouths1"]
         result_batch["video"][i][1] = dataset_items[i]["mouths2"]
-        result_batch["mix_path"][i] = dataset_items[i]["mix_path"]
+        result_batch["name"][i] = dataset_items[i]["name"]
     return result_batch
 
 

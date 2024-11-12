@@ -3,7 +3,9 @@ import warnings
 from pathlib import Path
 
 import hydra
+import torch
 from hydra.utils import instantiate
+from tqdm.auto import tqdm
 
 from src.datasets.collate import collate_fn_metrics
 from src.metrics.tracker import MetricTracker
@@ -15,7 +17,12 @@ os.environ["HYDRA_FULL_ERROR"] = "1"
 @hydra.main(
     version_base=None, config_path="src/configs", config_name="calculate_metrics"
 )
+@torch.no_grad()
 def main(config):
+    if config.inferencer.device == "auto":
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+    else:
+        device = config.inferencer.device
     metrics = instantiate(config.metrics)["inference"]
     evaluation_metrics = MetricTracker(
         *[m.name for m in metrics],
@@ -27,8 +34,9 @@ def main(config):
     dataloader = instantiate(
         config.dataloader, dataset=dataset, collate_fn=collate_fn_metrics
     )
-    for batch in dataloader:
-        print(batch["source"].shape)
+    for batch in tqdm(dataloader, total=len(dataloader)):
+        for key in batch:
+            batch[key] = batch[key].to(device)
         for met in metrics:
             evaluation_metrics.update(met.name, met(**batch))
     logs = evaluation_metrics.result()

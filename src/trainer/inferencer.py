@@ -145,18 +145,18 @@ class Inferencer(BaseTrainer):
                 predict = batch["predict"][i].clone()
 
                 torchaudio.save(
-                    self.save_path / "mix" / batch["mix_path"][i],
-                    mix.unsqueeze(0),
+                    self.save_path / "mix" / batch["name"][i],
+                    mix.unsqueeze(0).cpu(),
                     16000,
                 )
                 torchaudio.save(
-                    self.save_path / "s1" / batch["mix_path"][i],
-                    predict[0].unsqueeze(0),
+                    self.save_path / "s1" / batch["name"][i],
+                    predict[0].unsqueeze(0).cpu(),
                     16000,
                 )
                 torchaudio.save(
-                    self.save_path / "s2" / batch["mix_path"][i],
-                    predict[1].unsqueeze(0),
+                    self.save_path / "s2" / batch["name"][i],
+                    predict[1].unsqueeze(0).cpu(),
                     16000,
                 )
         return batch

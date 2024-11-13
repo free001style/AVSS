@@ -107,8 +107,6 @@ saved/
 wandb/
 .cometml-runs/
 outputs/
-runs/
-train.sbatch
 
 # editor, os cache directory
 .vscode/
@@ -117,4 +115,3 @@ __MACOSX/
 .DS_Store
 test_dir/
 notebook.ipynb
-playground.ipynb

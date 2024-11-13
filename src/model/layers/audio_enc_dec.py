@@ -47,28 +47,15 @@ class AudioDecoder(nn.Module):
     Module for audio decoding.
     """
 
-    def __init__(self, channel_dim=256, n_fft=255, hop_length=128, use_video=True):
+    def __init__(self, channel_dim=256, n_fft=255, hop_length=128):
         super(AudioDecoder, self).__init__()
         self.n_fft = n_fft
         self.hop_length = hop_length
-        self.use_video = use_video
-        self.out_channels = 2 if use_video else 4
         self.conv = nn.ConvTranspose2d(
-            channel_dim, self.out_channels, kernel_size=3, padding=1, bias=False
+            channel_dim, 2, kernel_size=3, padding=1, bias=False
         )
         nn.init.xavier_uniform_(self.conv.weight)
         self.window = torch.hann_window(n_fft)
-
-    def _get_audio(self, x, length):
-        x = torch.complex(x[:, 0], x[:, 1]).transpose(1, 2)
-        audio = torch.istft(
-            x,
-            n_fft=self.n_fft,
-            hop_length=self.hop_length,
-            window=self.window.to(x.device),
-            length=length,
-        )
-        return audio
 
     def forward(self, x, length):
         """
@@ -79,10 +66,12 @@ class AudioDecoder(nn.Module):
             audio (Tensor): (B, L) tensor of predicted audio.
         """
         x = self.conv(x)  # (b, c, time, freq)
-        if not self.use_video:
-            audio1 = self._get_audio(x[:, :2], length)
-            audio2 = self._get_audio(x[:, 2:], length)
-            return torch.cat((audio1, audio2))
-        else:
-            audio = self._get_audio(x, length)
-            return audio
+        x = torch.complex(x[:, 0], x[:, 1]).transpose(1, 2)
+        audio = torch.istft(
+            x,
+            n_fft=self.n_fft,
+            hop_length=self.hop_length,
+            window=self.window.to(x.device),
+            length=length,
+        )
+        return audio

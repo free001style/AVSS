@@ -1,3 +1,5 @@
+import os
+
 import torch
 import torchaudio
 from torch.utils.data import Dataset
@@ -11,7 +13,6 @@ class MetricsDataset(Dataset):
             gt_dir (Path):
         """
         super().__init__()
-        format_list = [".wav", ".mp3", ".flac"]
         self._mix, self._predict1, self._predict2, self._gt1, self._gt2 = (
             [],
             [],
@@ -19,26 +20,13 @@ class MetricsDataset(Dataset):
             [],
             [],
         )
-        for mix_path, predict1_path, predict2_path, gt1_path, gt2_path in zip(
-            (predict_dir / "mix").iterdir(),
-            (predict_dir / "s1").iterdir(),
-            (predict_dir / "s2").iterdir(),
-            (gt_dir / "s1").iterdir(),
-            (gt_dir / "s2").iterdir(),
-        ):
-            if (
-                mix_path.suffix in format_list
-                and (
-                    predict1_path.suffix in format_list
-                    and predict2_path.suffix in format_list
-                )
-                and (gt1_path.suffix in format_list and gt2_path.suffix in format_list)
-            ):
-                self._mix.append(mix_path)
-                self._predict1.append(predict1_path)
-                self._predict2.append(predict2_path)
-                self._gt1.append(gt1_path)
-                self._gt2.append(gt2_path)
+        for mix in os.listdir(predict_dir / "mix"):
+            if mix.endswith((".wav", ".mp3", ".flac")):
+                self._mix.append(predict_dir / "mix" / mix)
+                self._predict1.append(predict_dir / "s1" / mix)
+                self._predict2.append(predict_dir / "s2" / mix)
+                self._gt1.append(gt_dir / "s1" / mix)
+                self._gt2.append(gt_dir / "s2" / mix)
 
     def __len__(self):
         return len(self._predict1)

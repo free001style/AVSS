@@ -129,9 +129,7 @@ class Inferencer(BaseTrainer):
             device_type=self.device, enabled=self.is_amp, dtype=torch.float16
         ):
             outputs = self.model(**batch)
-            outputs["predict"] /= torch.max(
-                torch.abs(outputs["predict"]), dim=1, keepdim=True
-            )[0]
+            outputs["predict"] *= 200
             batch.update(outputs)
 
         if metrics is not None:

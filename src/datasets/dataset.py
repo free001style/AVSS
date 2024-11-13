@@ -18,6 +18,9 @@ class Dataset(BaseDataset):
         if index_path.exists():
             with index_path.open() as f:
                 index = json.load(f)
+                self.separate_only = (
+                    True if index[0]["label1"] == index[0]["label2"] else False
+                )
         else:
             index = self._create_index(part)
             with index_path.open("w") as f:
@@ -31,8 +34,13 @@ class Dataset(BaseDataset):
         for mix in os.listdir(str(audio_dir / "mix")):
             if mix.endswith(".wav"):
                 mix_path = str(audio_dir / "mix" / mix)
-                s1_path = str(audio_dir / "s1" / mix)
-                s2_path = str(audio_dir / "s2" / mix)
+                if (audio_dir / "s1").exists():
+                    s1_path = str(audio_dir / "s1" / mix)
+                    s2_path = str(audio_dir / "s2" / mix)
+                    self.separate_only = False
+                else:
+                    s1_path = s2_path = str(mix)
+                    self.separate_only = True
                 mouths1, mouths2 = mix[:-4].split("_")
                 mouths1_path = str(mouths_dir / f"{mouths1}.npz")
                 mouths2_path = str(mouths_dir / f"{mouths2}.npz")

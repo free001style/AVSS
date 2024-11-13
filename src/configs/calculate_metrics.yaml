@@ -1,8 +1,9 @@
 defaults:
-  - datasets: calculate_metrics
   - dataloader: example
   - metrics: inference
   - _self_
+datasets:
+  _target_: src.datasets.MetricsDataset
 predict_dir: null
 gt_dir: null
 device: auto

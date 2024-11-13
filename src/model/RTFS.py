@@ -75,7 +75,7 @@ class RTFS(nn.Module):
         )
         self.mask = S3(channel_dim=channel_dim)
 
-    def forward(self, mix, video, **batch):
+    def forward(self, mix, video=None, **batch):
         """
         Args:
             mix (Tensor): (B, L) tensor of mix audio.
@@ -89,17 +89,19 @@ class RTFS(nn.Module):
             video_embed = self.video_encoder(video).view(
                 audio_embed.shape[0], self.n_speakers, self.video_embed_dim, -1
             )
-        predicts = []
+        masked = []
         for i in range(self.n_speakers):
             if self.use_video:
                 features = self.separator(audio_embed, video_embed[:, i])
             else:
                 features = self.separator(audio_embed, None)
             masked_embed = self.mask(features, audio_embed)
-            predicts.append(
-                self.audio_decoder(masked_embed, l)
-            )  # TODO try do decode not in loop
-        predict = torch.cat(predicts).view(self.n_speakers, b, l).transpose(0, 1)
+            masked.append(masked_embed)
+        predict = (
+            self.audio_decoder(torch.cat(masked), l)
+            .view(self.n_speakers, b, l)
+            .transpose(0, 1)
+        )
         return {"predict": predict}
 
     def __str__(self):

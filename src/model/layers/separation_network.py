@@ -45,12 +45,12 @@ class SeparationNetwork(nn.Module):
         rtfs_block = RTFSBlock(channel_dim, hidden_dim, freqs, q_audio)
         if use_video:
             self.vp = VPBlock(q_video, video_embed_dim, hidden_dim)
+            self.fusion = CAFBlock(
+                channel_dim_a=channel_dim,
+                channel_dim_v=video_embed_dim,
+                h=n_head,
+            )
         self.ap = rtfs_block
-        self.fusion = CAFBlock(
-            channel_dim_a=channel_dim,
-            channel_dim_v=video_embed_dim,
-            h=n_head,
-        )
         self.rtfs_blocks = rtfs_block
 
     def forward(self, audio_embed, video_embed):

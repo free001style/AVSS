@@ -55,6 +55,7 @@ class RTFS(nn.Module):
             channel_dim=channel_dim,
             n_fft=n_fft,
             hop_length=hop_length,
+            use_video=use_video
         )
         if self.use_video:
             self.video_encoder = Lipreading()
@@ -89,16 +90,18 @@ class RTFS(nn.Module):
             video_embed = self.video_encoder(video).view(
                 audio_embed.shape[0], self.n_speakers, self.video_embed_dim, -1
             )
-        masked = []
-        for i in range(self.n_speakers):
-            if self.use_video:
+            masked = []
+            for i in range(self.n_speakers):
                 features = self.separator(audio_embed, video_embed[:, i])
-            else:
-                features = self.separator(audio_embed, None)
-            masked_embed = self.mask(features, audio_embed)
-            masked.append(masked_embed)
+                masked_embed = self.mask(features, audio_embed)
+                masked.append(masked_embed)
+            masked = torch.cat(masked)
+        else:
+            features = self.separator(audio_embed, None)
+            masked = self.mask(features, audio_embed)
+
         predict = (
-            self.audio_decoder(torch.cat(masked), l)
+            self.audio_decoder(masked, l)
             .view(self.n_speakers, b, l)
             .transpose(0, 1)
         )

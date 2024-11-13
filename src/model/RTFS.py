@@ -95,13 +95,13 @@ class RTFS(nn.Module):
                 features = self.separator(audio_embed, video_embed[:, i])
                 masked_embed = self.mask(features, audio_embed)
                 masked.append(masked_embed)
+            masked = torch.cat(masked)
         else:
             features = self.separator(audio_embed, None)
-            masked_embed = self.mask(features, audio_embed)
-            masked = self.audio_decoder(masked_embed, l)
-            
+            masked = self.mask(features, audio_embed)
+        
         predict = (
-            self.audio_decoder(torch.cat(masked), l)
+            self.audio_decoder(masked, l)
             .view(self.n_speakers, b, l)
             .transpose(0, 1)
         )

@@ -79,10 +79,10 @@ class AudioDecoder(nn.Module):
             audio (Tensor): (B, L) tensor of predicted audio.
         """
         x = self.conv(x)  # (b, c, time, freq)
-        if self.use_video:
+        if not self.use_video:
             audio1 = self._get_audio(x[:, :2], length)
             audio2 = self._get_audio(x[:, 2:], length)
-            return audio1, audio2
+            return torch.cat((audio1, audio2))
         else:
             audio = self._get_audio(x, length)
             return audio

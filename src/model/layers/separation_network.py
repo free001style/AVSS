@@ -69,7 +69,7 @@ class SeparationNetwork(nn.Module):
         else:
             fused = audio_embed.clone()
         for i in range(self.R):
-            if i > 0:  # TODO
+            if i > 0:
                 fused += residual
             fused = self.rtfs_blocks(fused)
         return fused

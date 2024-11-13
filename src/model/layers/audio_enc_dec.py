@@ -52,7 +52,7 @@ class AudioDecoder(nn.Module):
         self.n_fft = n_fft
         self.hop_length = hop_length
         self.conv = nn.ConvTranspose2d(
-            channel_dim, 2, kernel_size=3, padding=1, bias=False
+            channel_dim, 4, kernel_size=3, padding=1, bias=False
         )
         nn.init.xavier_uniform_(self.conv.weight)
         self.window = torch.hann_window(n_fft)
@@ -66,12 +66,20 @@ class AudioDecoder(nn.Module):
             audio (Tensor): (B, L) tensor of predicted audio.
         """
         x = self.conv(x)  # (b, c, time, freq)
-        x = torch.complex(x[:, 0], x[:, 1]).transpose(1, 2)
-        audio = torch.istft(
-            x,
+        x1 = torch.complex(x[:, 0], x[:, 1]).transpose(1, 2)
+        audio1 = torch.istft(
+            x1,
             n_fft=self.n_fft,
             hop_length=self.hop_length,
             window=self.window.to(x.device),
             length=length,
         )
-        return audio
+        x2 = torch.complex(x[:, 2], x[:, 3]).transpose(1, 2)
+        audio2 = torch.istft(
+            x2,
+            n_fft=self.n_fft,
+            hop_length=self.hop_length,
+            window=self.window.to(x.device),
+            length=length,
+        )
+        return audio1, audio2

@@ -23,4 +23,5 @@ class PIT(nn.Module):
             losses (dict): dict containing calculated loss functions.
         """
         loss = self.loss(predict, source).mean()
+        print(loss)
         return {"loss": loss}

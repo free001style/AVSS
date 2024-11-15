@@ -58,6 +58,7 @@ class BaseTrainer:
                 tensor name.
         """
         self.profiler = profiler
+        self.profiler_data = {}
         self.is_train = True
 
         self.config = config

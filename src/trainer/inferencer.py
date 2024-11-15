@@ -27,6 +27,7 @@ class Inferencer(BaseTrainer):
         batch_transforms=None,
         skip_model_load=False,
         separate_only=True,
+        profiler=None,
     ):
         """
         Initialize the Inferencer.
@@ -54,6 +55,8 @@ class Inferencer(BaseTrainer):
             skip_model_load or config.inferencer.get("from_pretrained") is not None
         ), "Provide checkpoint or set skip_model_load=True"
 
+        self.profiler = profiler
+        self.profiler_data = {}
         self.config = config
         self.cfg_trainer = self.config.inferencer
 
@@ -95,9 +98,18 @@ class Inferencer(BaseTrainer):
                 for the part_name partition.
         """
         part_logs = {}
+        if self.profiler is not None:
+            self.profiler.start_profile()
         for part, dataloader in self.evaluation_dataloaders.items():
             logs = self._inference_part(part, dataloader)
             part_logs[part] = logs
+        if self.profiler is not None:
+            self.profiler.stop_profile()
+            self.profiler_data['inference_flops'] = self.profiler.get_total_flops()
+            self.profiler_data['inference_macs'] = self.profiler.get_total_params()
+            self.profiler_data['inference_params'] = self.profiler.get_total_params()
+            self.profiler_data['inference_time'] = self.profiler.get_total_duration()
+            self.profiler.end_profile()
         return part_logs
 
     def process_batch(self, batch_idx, batch, metrics, part):

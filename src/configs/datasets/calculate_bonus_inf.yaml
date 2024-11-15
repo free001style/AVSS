@@ -1,0 +1,6 @@
+test:
+  _target_: src.datasets.Dataset
+  part: "val"
+  data_dir: "../../input/dla-dataset/dla_dataset"
+  save_dir: "save_dir"
+  limit: 1

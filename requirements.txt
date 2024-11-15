@@ -13,6 +13,7 @@ soundfile
 pesq
 pystoi
 gdown
+deepspeed
 
 black
 isort

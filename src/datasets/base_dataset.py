@@ -26,6 +26,7 @@ class BaseDataset(Dataset):
         limit=None,
         shuffle_index=False,
         instance_transforms=None,
+        **kwargs
     ):
         """
         Args:
@@ -83,7 +84,7 @@ class BaseDataset(Dataset):
             "label2": label2,
             "mouths1": mouths1,
             "mouths2": mouths2,
-            "name": data_dict["name"],
+            "name": data_dict["name"] if "name" in data_dict.keys() else "",
         }
         instance_data = self.preprocess_data(instance_data)
 

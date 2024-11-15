@@ -31,6 +31,7 @@ class BaseTrainer:
         epoch_len=None,
         skip_oom=True,
         batch_transforms=None,
+        profiler=None
     ):
         """
         Args:
@@ -56,6 +57,7 @@ class BaseTrainer:
                 should be applied on the whole batch. Depend on the
                 tensor name.
         """
+        self.profiler = profiler
         self.is_train = True
 
         self.config = config
@@ -206,6 +208,8 @@ class BaseTrainer:
         self.train_metrics.reset()
         self.writer.set_step((epoch - 1) * self.epoch_len)
         self.writer.add_scalar("epoch", epoch)
+        if self.profiler is not None:
+            self.profiler.start_profile()
         for batch_idx, batch in enumerate(
             tqdm(self.train_dataloader, desc="train", total=self.epoch_len)
         ):
@@ -244,6 +248,15 @@ class BaseTrainer:
             if batch_idx + 1 >= self.epoch_len:
                 break
 
+        if self.profiler is not None:
+            self.profiler.stop_profile()
+            self.profiler_data['train_flops'] = self.profiler.get_total_flops()
+            self.profiler_data['train_macs'] = self.profiler.get_total_params()
+            self.profiler_data['train_params'] = self.profiler.get_total_params()
+            self.profiler_data['train_time'] = self.profiler.get_total_duration()
+            # self.profiler.print_model_profile()
+            self.profiler.end_profile()
+
         logs = last_train_metrics
 
         # Run val/test
@@ -267,6 +280,8 @@ class BaseTrainer:
         self.is_train = False
         self.model.eval()
         self.evaluation_metrics.reset()
+        if self.profiler is not None:
+            self.profiler.start_profile()
         with torch.no_grad():
             for batch_idx, batch in tqdm(
                 enumerate(dataloader),
@@ -282,6 +297,14 @@ class BaseTrainer:
             self._log_batch(
                 batch_idx, batch, part
             )  # log only the last batch during inference
+
+        if self.profiler is not None:
+            self.profiler.stop_profile()
+            self.profiler_data['eval_flops'] = self.profiler.get_total_flops()
+            self.profiler_data['eval_macs'] = self.profiler.get_total_params()
+            self.profiler_data['eval_params'] = self.profiler.get_total_params()
+            self.profiler_data['eval_time'] = self.profiler.get_total_duration()
+            self.profiler.end_profile()
 
         return self.evaluation_metrics.result()
 

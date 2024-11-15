@@ -1,0 +1,10 @@
+train: [ ]
+inference: # metrics that are calculated during inference
+  - _target_: src.metrics.SISNRi
+    name: "SI-SNRi"
+  - _target_: src.metrics.SDRi
+    name: "SDRi"
+  - _target_: src.metrics.PESQ
+    name: "PESQ"
+  - _target_: src.metrics.STOI
+    name: "STOI"

@@ -211,6 +211,7 @@ class BaseTrainer:
         self.writer.add_scalar("epoch", epoch)
         if self.profiler is not None:
             self.profiler.start_profile()
+            torch.cuda.reset_peak_memory_stats()
         for batch_idx, batch in enumerate(
             tqdm(self.train_dataloader, desc="train", total=self.epoch_len)
         ):
@@ -251,6 +252,7 @@ class BaseTrainer:
 
         if self.profiler is not None:
             self.profiler.stop_profile()
+            self.profiler_data['train_memory'] = torch.cuda.max_memory_allocated()
             self.profiler_data['train_flops'] = self.profiler.get_total_flops()
             self.profiler_data['train_macs'] = self.profiler.get_total_params()
             self.profiler_data['train_params'] = self.profiler.get_total_params()

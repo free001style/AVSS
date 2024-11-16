@@ -18,8 +18,11 @@ os.environ["HYDRA_FULL_ERROR"] = "1"
 
 def measure_model_params(model):
     model.train()
+    torch.save(model.state_dict(), 'model.pth')
+    disk_memory = os.path.getsize('model.pth')
     return {'total_params_count': sum(p.numel() for p in model.parameters()),
-            'trainable_params_count': sum(p.numel() for p in model.parameters() if p.requires_grad)}
+            'trainable_params_count': sum(p.numel() for p in model.parameters() if p.requires_grad),
+            'disk_memory': disk_memory}
 
 
 @hydra.main(
@@ -77,9 +80,9 @@ def measure_train(config):
     print()
     for key, value in trainer.profiler_data.items():
         if 'macs' in key or 'flops' in key:
-            print(key, value / 10**9)
+            print(key, value / 10 ** 9)
         elif 'params' in key:
-            print(key, value / 10**6)
+            print(key, value / 10 ** 6)
         else:
             print(key, value)
     print()
@@ -126,15 +129,15 @@ def measure_inference(config):
 
     print()
     for key, value in inferencer.profiler_data.items():
-        if 'macs' in key or 'flops' in key:
-            print(key, value / 10**9)
+        if 'macs' in key or 'flops' in key or 'memory' in key:
+            print(key, value / 10 ** 9)
         elif 'params' in key:
-            print(key, value / 10**6)
+            print(key, value / 10 ** 6)
         else:
             print(key, value)
     print()
     for key, value in measure_model_params(model).items():
-        print(key, value / 10**6)
+        print(key, value / 10 ** 6)
     print()
 
 

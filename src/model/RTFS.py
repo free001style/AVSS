@@ -27,6 +27,7 @@ class RTFS(nn.Module):
         q_video=4,
         lipreading_model_path="./data/other/lipreading_model.pth",
         use_video=True,
+        use_same_block=True,
     ):
         """
         Args:
@@ -43,6 +44,7 @@ class RTFS(nn.Module):
             q_video (int): number of spacial dim decreasing in compression phase for video (q in paper).
             lipreading_model_path (str): path for pretrained lipreading model.
             use_video (bool): whether to use video of speakers.
+            use_same_block (bool): if True apply one rtfs block sequentially, if False apply different blocks.
         """
         super(RTFS, self).__init__()
         self.use_video = use_video
@@ -73,6 +75,7 @@ class RTFS(nn.Module):
             q_audio=q_audio,
             q_video=q_video,
             use_video=use_video,
+            use_same_block=use_same_block,
         )
         self.mask = S3(channel_dim=channel_dim)
 

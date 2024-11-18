@@ -1,15 +1,14 @@
 import torch
-from torchmetrics.functional.audio import signal_distortion_ratio as sdr
-
+from torchmetrics.functional.audio import scale_invariant_signal_noise_ratio as si_snr
 from src.metrics.base_metric import BaseMetric
 
 
-class SDRi(BaseMetric):
+class SISNR(BaseMetric):
     def __init__(self, *args, **kwargs):
         """
-        Applies SDRi metric function.
+        Applies SI-SNRi metric function.
         """
-        self.metric = sdr
+        self.metric = si_snr
         super().__init__(*args, **kwargs)
 
     def __call__(self, source, predict, mix, **batch):
@@ -19,9 +18,8 @@ class SDRi(BaseMetric):
             predict (Tensor): (B, n_spk, T) predicted speech.
             mix (Tensor): (B, T) mixed speech.
         Returns:
-            metric (Tensor): calculated SDRi.
+            SI-SNRi (Tensor): calculated SI-SNRi.
         """
         return torch.mean(
             self.metric(predict, source)
-            - self.metric(mix.unsqueeze(1).expand(-1, source.shape[1], -1), source)
         )

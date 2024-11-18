@@ -8,8 +8,8 @@ class PESQ(BaseMetric):
         """
         Applies PESQ metric function.
         """
-        super().__init__(*args, **kwargs)
         self.metric = PerceptualEvaluationSpeechQuality(16000, "wb")
+        super().__init__(*args, **kwargs)
 
     def __call__(self, source, predict, **kwargs):
         """

@@ -8,8 +8,8 @@ class STOI(BaseMetric):
         """
         Applies STOI metric function.
         """
-        super().__init__(*args, **kwargs)
         self.metric = ShortTimeObjectiveIntelligibility(16000)
+        super().__init__(*args, **kwargs)
 
     def __call__(self, source, predict, **kwargs):
         """

@@ -19,10 +19,10 @@ os.environ["HYDRA_FULL_ERROR"] = "1"
 )
 @torch.no_grad()
 def main(config):
-    if config.inferencer.device == "auto":
+    if config.device == "auto":
         device = "cuda" if torch.cuda.is_available() else "cpu"
     else:
-        device = config.inferencer.device
+        device = config.device
     metrics = instantiate(config.metrics)["inference"]
     evaluation_metrics = MetricTracker(
         *[m.name for m in metrics],

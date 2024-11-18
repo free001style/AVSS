@@ -221,7 +221,7 @@ class Inferencer(BaseTrainer):
                 the dataloader with some of the tensors on the device.
         """
         for tensor_for_device in self.cfg_trainer.device_tensors:
-            if tensor_for_device == "source" and self.separate_only:
+            if batch[tensor_for_device] is None:
                 continue
             batch[tensor_for_device] = batch[tensor_for_device].to(self.device)
         return batch

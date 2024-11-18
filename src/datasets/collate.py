@@ -1,7 +1,7 @@
 import torch
 
 
-def collate_fn(dataset_items: list[dict]):
+def collate_fn(dataset_items: list[dict], use_video):
     """
     Collate and pad fields in the dataset items.
     Converts individual items into a batch.
@@ -15,13 +15,15 @@ def collate_fn(dataset_items: list[dict]):
     """
     batch_size = len(dataset_items)
     time_audio = dataset_items[0]["mix"].shape[0]
-    time_video, h, w = dataset_items[0]["mouths1"].shape
+    if use_video:
+        time_video, h, w = dataset_items[0]["mouths1"].shape
     result_batch = {
         "mix": torch.zeros((batch_size, time_audio)),
         "source": torch.zeros((batch_size, 2, time_audio))
         if dataset_items[0]["label1"] is not None
         else None,
-        "video": torch.zeros((batch_size, 2, time_video, h, w)),
+        "video": torch.zeros((batch_size, 2, time_video, h, w))
+        if use_video else None,
         "name": [""] * batch_size,
     }
     for i in range(batch_size):
@@ -29,8 +31,9 @@ def collate_fn(dataset_items: list[dict]):
         if result_batch["source"] is not None:
             result_batch["source"][i][0] = dataset_items[i]["label1"]
             result_batch["source"][i][1] = dataset_items[i]["label2"]
-        result_batch["video"][i][0] = dataset_items[i]["mouths1"]
-        result_batch["video"][i][1] = dataset_items[i]["mouths2"]
+        if result_batch["video"] is not None:
+            result_batch["video"][i][0] = dataset_items[i]["mouths1"]
+            result_batch["video"][i][1] = dataset_items[i]["mouths2"]
         result_batch["name"][i] = dataset_items[i]["name"]
     return result_batch
 

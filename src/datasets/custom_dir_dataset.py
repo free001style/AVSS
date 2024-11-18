@@ -24,13 +24,16 @@ class CustomDirDataset(BaseDataset):
                 else:
                     s1_path = s2_path = str(mix)
                     self.separate_only = True
-                mouths1, mouths2 = (
-                    mix[:-5].split("_")
-                    if mix.endswith(".flac")
-                    else mix[:-4].split("_")
-                )
-                mouths1_path = str(mouths_dir / f"{mouths1}.npz")
-                mouths2_path = str(mouths_dir / f"{mouths2}.npz")
+                if mouths_dir.exists():
+                    mouths1, mouths2 = (
+                        mix[:-5].split("_")
+                        if mix.endswith(".flac")
+                        else mix[:-4].split("_")
+                    )
+                    mouths1_path = str(mouths_dir / f"{mouths1}.npz")
+                    mouths2_path = str(mouths_dir / f"{mouths2}.npz")
+                else:
+                    mouths1_path = mouths2_path = None
                 index.append(
                     {
                         "mix": mix_path,

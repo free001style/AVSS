@@ -84,7 +84,7 @@ class BaseDataset(Dataset):
             "label2": label2,
             "mouths1": mouths1,
             "mouths2": mouths2,
-            "name": data_dict["name"] if "name" in data_dict.keys() else "",
+            "name": data_dict["name"],
         }
         instance_data = self.preprocess_data(instance_data)
 
@@ -125,6 +125,8 @@ class BaseDataset(Dataset):
         Returns:
             data_object (Tensor):
         """
+        if path is None:
+            return path
         data_object = np.load(path)["data"]
         data_object = torch.from_numpy(data_object)
         return data_object

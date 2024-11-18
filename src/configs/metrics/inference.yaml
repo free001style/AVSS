@@ -1,9 +1,16 @@
 inference: # metrics that are calculated during inference
+  - _target_: src.metrics.SISNR
+    name: "SI-SNR"
+    use_pit: False
   - _target_: src.metrics.SISNRi
     name: "SI-SNRi"
+    use_pit: False
   - _target_: src.metrics.SDRi
     name: "SDRi"
+    use_pit: False
   - _target_: src.metrics.PESQ
     name: "PESQ"
+    use_pit: False
   - _target_: src.metrics.STOI
     name: "STOI"
+    use_pit: False

@@ -1,6 +1,5 @@
 import torch
 from torchmetrics.functional.audio import scale_invariant_signal_noise_ratio as si_snr
-
 from src.metrics.base_metric import BaseMetric
 
 
@@ -9,6 +8,7 @@ class SISNRi(BaseMetric):
         """
         Applies SI-SNRi metric function.
         """
+        self.metric = si_snr
         super().__init__(*args, **kwargs)
 
     def __call__(self, source, predict, mix, **batch):
@@ -21,6 +21,6 @@ class SISNRi(BaseMetric):
             SI-SNRi (Tensor): calculated SI-SNRi.
         """
         return torch.mean(
-            si_snr(predict, source)
-            - si_snr(mix.unsqueeze(1).expand(-1, source.shape[1], -1), source)
+            self.metric(predict, source)
+            - self.metric(mix.unsqueeze(1).expand(-1, source.shape[1], -1), source)
         )

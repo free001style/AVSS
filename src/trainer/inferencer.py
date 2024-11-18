@@ -105,10 +105,10 @@ class Inferencer(BaseTrainer):
             part_logs[part] = logs
         if self.profiler is not None:
             self.profiler.stop_profile()
-            self.profiler_data['inference_flops'] = self.profiler.get_total_flops()
-            self.profiler_data['inference_macs'] = self.profiler.get_total_params()
-            self.profiler_data['inference_params'] = self.profiler.get_total_params()
-            self.profiler_data['inference_time'] = self.profiler.get_total_duration()
+            self.profiler_data["inference_flops"] = self.profiler.get_total_flops()
+            self.profiler_data["inference_macs"] = self.profiler.get_total_params()
+            self.profiler_data["inference_params"] = self.profiler.get_total_params()
+            self.profiler_data["inference_time"] = self.profiler.get_total_duration()
             self.profiler.end_profile()
         return part_logs
 
@@ -141,7 +141,7 @@ class Inferencer(BaseTrainer):
             device_type=self.device, enabled=self.is_amp, dtype=torch.float16
         ):
             outputs = self.model(**batch)
-            outputs["predict"] *= 200
+            outputs["predict"] *= 100
             batch.update(outputs)
 
         if metrics is not None:

@@ -1,5 +1,5 @@
 defaults:
-  - model: rtfs
+  - model: no_video_rtfs
   - writer: wandb
   - metrics: metrics
   - datasets: dla_dataset

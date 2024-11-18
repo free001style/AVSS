@@ -7,7 +7,7 @@ import pandas as pd
 # from dotenv import load_dotenv
 #
 # load_dotenv()
-# KEY = os.getenv("KEY")
+KEY = 0
 
 
 class WandBWriter:
@@ -46,7 +46,7 @@ class WandBWriter:
         try:
             import wandb
 
-            wandb.login(key="46c3b8e339b3fb22dc286204510c8af5b2c3e2e5", relogin=True)
+            wandb.login(key=KEY, relogin=True)
 
             self.run_id = run_id
 

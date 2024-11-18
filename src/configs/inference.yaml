@@ -10,5 +10,5 @@ inferencer:
   device: auto # device name or "auto"
   seed: 1
   save_path: "tmp"
-  from_pretrained: ""
+  from_pretrained: "saved/other/R12.pth"
   is_amp: True

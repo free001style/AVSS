@@ -2,6 +2,7 @@
 
 <p align="center">
   <a href="#about">About</a> •
+    <a href="#example">Examples</a> •
   <a href="#installation">Installation</a> •
   <a href="#how-to-use">How To Use</a> •
    <a href="#final-results">Final results</a> •
@@ -17,7 +18,20 @@ is [RTFS-Net](https://arxiv.org/abs/2309.17189).
 
 See the task assignment [here](https://github.com/markovka17/dla/tree/2024/project_avss).
 
+See a [report](https://github.com/free001style/AVSS/report.pdf) for more information.
+
 [//]: # (See [wandb report]&#40;https://wandb.ai/free001style/ASR/reports/Report-of-ASR--Vmlldzo5NDc2NDAw&#41; with all experiments.)
+
+## Examples
+Mixed audio: https://github.com/free001style/AVSS/examples/mix
+
+- AVSS model:
+   s1: https://github.com/free001style/AVSS/examples/avss_s1
+   s2: https://github.com/free001style/AVSS/examples/avss_s2
+
+- Audio-only model:
+   s1: https://github.com/free001style/AVSS/examples/ss_s1
+   s2: https://github.com/free001style/AVSS/examples/ss_s1
 
 ## Installation
 
@@ -49,8 +63,10 @@ Follow these steps to install the project:
 
 ### Inference
 
-1) To separate two-speaker mixed audio, your audio directory should have the following format:
-```bash
+<details>
+<summary> 1. To separate two-speaker mixed audio, audio directory should have the following format:</summary>
+
+```
 NameOfTheDirectoryWithTestDataset
 ├── audio
     ├── mix
@@ -62,25 +78,27 @@ NameOfTheDirectoryWithTestDataset
         └── FirstSpeakerIDn_SecondSpeakerIDn.wav
 ```
 
-<details>
-<summary>Run the following command:</summary>
+
+Run the following command:
 
 ```bash
 python inference.py \
     datasets=inference_custom \
     datasets.test.data_dir=TEST_DATASET_PATH \
     inferencer.save_path=SAVE_PATH \
-    model.use_video=False \
-    model.channel_dim=392 \
-    model.R=4 \
-    inferencer.from_pretrained='saved/no_video/no_video_model.pth'
+    model=no_video_rtfs \
+    inferencer.from_pretrained='saved/other/no_video_model.pth'
 ```
-   where `SAVE_PATH` is a path to save separation predictions and `TEST_DATASET_PATH` is directory with test data.
+
+where `SAVE_PATH` is a path to save separation predictions and `TEST_DATASET_PATH` is directory with test data.
 
 </details>
 
-2) To separate two-speaker mixed audio using reference mouth recordings, your audio and video directory should have the following format:
-```bash
+<details>
+<summary>2. To separate two-speaker mixed audio using reference mouth recordings, audio and video directories should have the
+   following format:</summary>
+
+```
 NameOfTheDirectoryWithTestDataset
 ├── audio
 │   ├── mix
@@ -99,23 +117,25 @@ NameOfTheDirectoryWithTestDataset
     └── FirstOrSecondSpeakerIDn.npz
 ```
 
-<details>
-<summary>Run the following command:</summary>
+
+Run the following command:
 
 ```bash
 python inference.py \
     datasets=inference_custom \
     inferencer.save_path=SAVE_PATH \
-    datasets.test.data_dir=TEST_DATASET_PATH \
-    inferencer.from_pretrained='saved/R4/model_best.pth'
+    datasets.test.data_dir=TEST_DATASET_PATH
 ```
-   where `SAVE_PATH` is a path to save separation predictions and `TEST_DATASET_PATH` is directory with test data.
+
+where `SAVE_PATH` is a path to save separation predictions and `TEST_DATASET_PATH` is directory with test data.
 
 </details>
 
-3) To separate two-speaker mixed audio and evaluate results against ground truth separation, your audio directory should have the following format:
+<details>
+<summary> 3. To separate two-speaker mixed audio and evaluate results against ground truth separation, audio directory should
+   have the following format:</summary>
 
-```bash
+```
 NameOfTheDirectoryWithTestDataset
 ├── audio
     ├── mix
@@ -140,26 +160,30 @@ NameOfTheDirectoryWithTestDataset
         .
         └── FirstSpeakerIDn_SecondSpeakerIDn.wav
 ```
-<details>
-<summary>Run the following command:</summary>
+
+Run the following command:
 
 ```bash
-!python inference.py \
+python inference.py \
     datasets=inference_custom \
-    inferencer.save_path='tmp' \
-    datasets.test.data_dir='data/custom' \
+    inferencer.save_path=SAVE_PATH \
+    datasets.test.data_dir=TEST_DATASET_PATH \
     model=no_video_rtfs \
-    inferencer.from_pretrained='saved/no_video/no_video_model.pth' \
+    inferencer.from_pretrained='saved/other/no_video_model.pth' \
     metrics.inference.0.use_pit=True \
     metrics.inference.1.use_pit=True \
     metrics.inference.2.use_pit=True \
     metrics.inference.3.use_pit=True
 ```
+
 where `SAVE_PATH` is a path to save separation predictions and `TEST_DATASET_PATH` is directory with test data.
 </details>
 
-4) To separate two-speaker mixed audio using reference mouth recordings and evaluate results against ground truth separation, your audio directory should have the following format:
-```bash
+<details>
+<summary>4. To separate two-speaker mixed audio using reference mouth recordings and evaluate results against ground truth
+   separation, audio directory should have the following format:</summary>
+
+```
 NameOfTheDirectoryWithTestDataset
 ├── audio
 │   ├── mix
@@ -191,21 +215,24 @@ NameOfTheDirectoryWithTestDataset
     .
     └── FirstOrSecondSpeakerIDn.npz
 ```
-<details>
-<summary>Run the following command:</summary>
+
+Run the following command:
 
 ```bash
-!python inference.py \
+python inference.py \
     datasets=inference_custom \
     inferencer.save_path=SAVE_PATH \
-    datasets.test.data_dir=TEST_DATASET_PATH \
-    inferencer.from_pretrained='saved/R4/model_best.pth'
+    datasets.test.data_dir=TEST_DATASET_PATH
 ```
+
 where `SAVE_PATH` is a path to save separation predictions and `TEST_DATASET_PATH` is directory with test data.
 </details>
 
-5)  To evaluate the model using only predicted and ground truth audio separations, ensure that the directory containing them has the following format:
-```bash
+<details>
+<summary>5. To evaluate the model using only predicted and ground truth audio separations, ensure that the directory containing
+   them has the following format:</summary>
+
+```
 PredictDir
 ├── mix
 │   ├── FirstSpeakerID1_SecondSpeakerID1.wav # also may be flac or mp3
@@ -252,51 +279,57 @@ GroundTruthDir
     .
     └── FirstSpeakerIDn_SecondSpeakerIDn.wav
 ```
-<details>
-<summary>Run the following command:</summary>
+
+
+Run the following command:
 
 ```bash
-!python calculate_metrics.py \
+python calculate_metrics.py \
     predict_dir=PREDICT_DIR_PATH \
     gt_dir=GROUND_TRUTH_DIR_PATH
 ```
+
 </details>
 
-6) Finally, if you want to reproduce results from [here](#final-results), run the following code:
+6. Finally, if you want to reproduce results from [here](#final-results), run the following code:
+
 ```bash
 python inference.py \
-    inferencer.from_pretrained='saved/R4/model_best.pth'
+    inferencer.save_path=SAVE_PATH
 ```
-   Feel free to choose what kind of metrics you want to evaluate (
-   see [this config](src/configs/metrics/inference.yaml)).
+
+Feel free to choose what kind of metrics you want to evaluate (see [this config](src/configs/metrics/inference.yaml)).
 
 ### Training
 
-The model training contains of 3 stages. To reproduce results, train model using the following commands:
-
 1. To reproduce AVSS model, train model with
 
-   ```bash
-   TODO
-   python train.py writer.run_name="part1" dataloader.batch_size=230 transforms=example_only_instance trainer.early_stop=47
-   ```
+```bash
+python train.py
+```
 
-2. To reproduce ASS model, train model with
+2. To reproduce audio-only SS model, train model with
 
-   ```bash
-   TODO
-   python train.py writer.run_name="part2" dataloader.batch_size=230 trainer.resume_from=part1/model_best.pth datasets.val.part=test-other
-   ```
+```bash
+python train.py \
+   -cn=rtfs_pit dataloader.batch_size=10
+```
 
-It takes around 10 and 4 days to train AVSS and ASS models from scratch on V100 GPU respectively.
-
+It takes around 10 and 4 days to train AVSS and audio-only SS models from scratch on V100 GPU respectively.
 
 ## Final results
 
+```angular2html
+                        SI-SNRi    SDRi    PESQ    STOI    Params(M)    MACs(G)    Memory(GB)    Train time(ms)    Infer. time(ms)
+RTFS-Net-12              12.95    13.33    2.42    0.92      0.771
+audio-only model (R=4)   11.35    11.80    1.79    0.61      0.772
+```
 
 ## Credits
 
 This repository is based on a [PyTorch Project Template](https://github.com/Blinorot/pytorch_project_template).
+
+The pre-trained video feature extractors was taken from [Lip-reading repository](https://github.com/mpc001/Lipreading_using_Temporal_Convolutional_Networks). Thanks to the authors for sharing their code.
 
 ## Authors
 

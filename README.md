@@ -20,18 +20,30 @@ See the task assignment [here](https://github.com/markovka17/dla/tree/2024/proje
 
 See a [report](https://github.com/free001style/AVSS/report.pdf) for more information.
 
-[//]: # (See [wandb report]&#40;https://wandb.ai/free001style/ASR/reports/Report-of-ASR--Vmlldzo5NDc2NDAw&#41; with all experiments.)
-
 ## Examples
-Mixed audio: https://github.com/free001style/AVSS/examples/mix
+
+<details>
+
+<summary>Examples</summary>
+
+Mixed audio |
+:-: |
+<video src='https://github.com/user-attachments/assets/1eef968b-f39d-4b5e-9560-bc453068b891' width=180/> |
 
 - AVSS model:
-   s1: https://github.com/free001style/AVSS/examples/avss_s1
-   s2: https://github.com/free001style/AVSS/examples/avss_s2
+
+    speaker 1 | speaker 2
+    :-: | :-:
+    <video src='https://github.com/user-attachments/assets/e78f197e-958f-497b-80a0-a6be51363074' width=180/> | <video src='https://github.com/user-attachments/assets/341adeee-ecb6-4600-b66e-a5c531ebebd7' width=180/>
 
 - Audio-only model:
-   s1: https://github.com/free001style/AVSS/examples/ss_s1
-   s2: https://github.com/free001style/AVSS/examples/ss_s1
+
+    speaker 1 | speaker 2
+    :-: | :-:
+    <video src='https://github.com/user-attachments/assets/afdc7d50-1408-4779-b3e2-a3cc5de54c25' width=180/> | <video src='https://github.com/user-attachments/assets/4d35f835-24a7-4919-a4eb-41b082ac2dea' width=180/>
+
+
+</details>
 
 ## Installation
 
@@ -78,7 +90,6 @@ NameOfTheDirectoryWithTestDataset
         └── FirstSpeakerIDn_SecondSpeakerIDn.wav
 ```
 
-
 Run the following command:
 
 ```bash
@@ -116,7 +127,6 @@ NameOfTheDirectoryWithTestDataset
     .
     └── FirstOrSecondSpeakerIDn.npz
 ```
-
 
 Run the following command:
 
@@ -280,7 +290,6 @@ GroundTruthDir
     └── FirstSpeakerIDn_SecondSpeakerIDn.wav
 ```
 
-
 Run the following command:
 
 ```bash
@@ -329,7 +338,9 @@ audio-only model (R=4)   11.35    11.80    1.79    0.61      0.772
 
 This repository is based on a [PyTorch Project Template](https://github.com/Blinorot/pytorch_project_template).
 
-The pre-trained video feature extractors was taken from [Lip-reading repository](https://github.com/mpc001/Lipreading_using_Temporal_Convolutional_Networks). Thanks to the authors for sharing their code.
+The pre-trained video feature extractors was taken
+from [Lip-reading repository](https://github.com/mpc001/Lipreading_using_Temporal_Convolutional_Networks). Thanks to the
+authors for sharing their code.
 
 ## Authors
 

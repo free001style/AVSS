@@ -51,7 +51,7 @@ Follow these steps to install the project:
 
 1) To separate two-speaker mixed audio, your audio directory should have the following format:
 ```bash
-NameOfTheDirectoryWithUtterances
+NameOfTheDirectoryWithTestDataset
 ├── audio
     ├── mix
         ├── FirstSpeakerID1_SecondSpeakerID1.wav # also may be flac or mp3
@@ -61,10 +61,12 @@ NameOfTheDirectoryWithUtterances
         .
         └── FirstSpeakerIDn_SecondSpeakerIDn.wav
 ```
-   Run the following command:
-   ```bash
-   TODO
-   python inference.py \
+
+<details>
+<summary>Run the following command:</summary>
+
+```bash
+python inference.py \
     datasets=inference_custom \
     datasets.test.data_dir=TEST_DATASET_PATH \
     inferencer.save_path=SAVE_PATH \
@@ -72,11 +74,14 @@ NameOfTheDirectoryWithUtterances
     model.channel_dim=392 \
     model.R=4 \
     inferencer.from_pretrained='saved/no_video/no_video_model.pth'
-   ```
-   where `SAVE_PATH` is a path to save separation predictions and `TEST_DATASET_PATH` is directory with source audio.
+```
+   where `SAVE_PATH` is a path to save separation predictions and `TEST_DATASET_PATH` is directory with test data.
+
+</details>
+
 2) To separate two-speaker mixed audio using reference mouth recordings, your audio and video directory should have the following format:
 ```bash
-NameOfTheDirectoryWithUtterances
+NameOfTheDirectoryWithTestDataset
 ├── audio
 │   ├── mix
 │   │   ├── FirstSpeakerID1_SecondSpeakerID1.wav # also may be flac or mp3
@@ -93,14 +98,25 @@ NameOfTheDirectoryWithUtterances
     .
     └── FirstOrSecondSpeakerIDn.npz
 ```
-   Run the following command:
-   ```bash
-   TODO
-   ```
-   where `SAVE_PATH` is a path to save predicted text and `TEST_DATA` is directory with audio.
-3) To separate two-speaker mixed audio and evaluate results against ground truth separation, your audio directory should have the following format:
+
+<details>
+<summary>Run the following command:</summary>
+
 ```bash
-NameOfTheDirectoryWithUtterances
+python inference.py \
+    datasets=inference_custom \
+    inferencer.save_path=SAVE_PATH \
+    datasets.test.data_dir=TEST_DATASET_PATH \
+    inferencer.from_pretrained='saved/R4/model_best.pth'
+```
+   where `SAVE_PATH` is a path to save separation predictions and `TEST_DATASET_PATH` is directory with test data.
+
+</details>
+
+3) To separate two-speaker mixed audio and evaluate results against ground truth separation, your audio directory should have the following format:
+
+```bash
+NameOfTheDirectoryWithTestDataset
 ├── audio
     ├── mix
     │   ├── FirstSpeakerID1_SecondSpeakerID1.wav # also may be flac or mp3
@@ -124,13 +140,27 @@ NameOfTheDirectoryWithUtterances
         .
         └── FirstSpeakerIDn_SecondSpeakerIDn.wav
 ```
-   Then run the following command:
-   ```bash
-   TODO
-   ```
+<details>
+<summary>Run the following command:</summary>
+
+```bash
+!python inference.py \
+    datasets=inference_custom \
+    inferencer.save_path='tmp' \
+    datasets.test.data_dir='data/custom' \
+    model=no_video_rtfs \
+    inferencer.from_pretrained='saved/no_video/no_video_model.pth' \
+    metrics.inference.0.use_pit=True \
+    metrics.inference.1.use_pit=True \
+    metrics.inference.2.use_pit=True \
+    metrics.inference.3.use_pit=True
+```
+where `SAVE_PATH` is a path to save separation predictions and `TEST_DATASET_PATH` is directory with test data.
+</details>
+
 4) To separate two-speaker mixed audio using reference mouth recordings and evaluate results against ground truth separation, your audio directory should have the following format:
 ```bash
-NameOfTheDirectoryWithUtterances
+NameOfTheDirectoryWithTestDataset
 ├── audio
 │   ├── mix
 │   │   ├── FirstSpeakerID1_SecondSpeakerID1.wav # also may be flac or mp3
@@ -161,31 +191,82 @@ NameOfTheDirectoryWithUtterances
     .
     └── FirstOrSecondSpeakerIDn.npz
 ```
-   Then run the following command:
-   ```bash
-   TODO
-   ```
-5)  To evaluate the model using only predicted and ground truth audio separations, ensure that the directory containing them has the following format:
-   ```
-   NameOfTheDirectoryWithUtterances
-    ├── ID1.json # may be flac or mp3
-    .
-    .
-    .
-    └── IDn.json
+<details>
+<summary>Run the following command:</summary>
 
-   ID1 = {"pred_text": "ye are newcomers", "text": "YE ARE NEWCOMERS"}
-   ```
-   Then run the following command:
-   ```bash
-   TODO
-   python calculate_wer_cer.py --dir_path=DIR
-   ```
+```bash
+!python inference.py \
+    datasets=inference_custom \
+    inferencer.save_path=SAVE_PATH \
+    datasets.test.data_dir=TEST_DATASET_PATH \
+    inferencer.from_pretrained='saved/R4/model_best.pth'
+```
+where `SAVE_PATH` is a path to save separation predictions and `TEST_DATASET_PATH` is directory with test data.
+</details>
+
+5)  To evaluate the model using only predicted and ground truth audio separations, ensure that the directory containing them has the following format:
+```bash
+PredictDir
+├── mix
+│   ├── FirstSpeakerID1_SecondSpeakerID1.wav # also may be flac or mp3
+│   ├── FirstSpeakerID2_SecondSpeakerID2.wav
+│   .
+│   .
+│   .
+│   └── FirstSpeakerIDn_SecondSpeakerIDn.wav
+├── s1 # prediction for the speaker s1, may not be given
+│   ├── FirstSpeakerID1_SecondSpeakerID1.wav # also may be flac or mp3
+│   ├── FirstSpeakerID2_SecondSpeakerID2.wav
+│   .
+│   .
+│   .
+│   └── FirstSpeakerIDn_SecondSpeakerIDn.wav
+└── s2 # prediction for the speaker s2
+    ├── FirstSpeakerID1_SecondSpeakerID1.wav # also may be flac or mp3
+    ├── FirstSpeakerID2_SecondSpeakerID2.wav
+    .
+    .
+    .
+    └── FirstSpeakerIDn_SecondSpeakerIDn.wav
+
+GroundTruthDir
+├── mix
+│   ├── FirstSpeakerID1_SecondSpeakerID1.wav # also may be flac or mp3
+│   ├── FirstSpeakerID2_SecondSpeakerID2.wav
+│   .
+│   .
+│   .
+│   └── FirstSpeakerIDn_SecondSpeakerIDn.wav
+├── s1 # ground truth for the speaker s1, may not be given
+│   ├── FirstSpeakerID1_SecondSpeakerID1.wav # also may be flac or mp3
+│   ├── FirstSpeakerID2_SecondSpeakerID2.wav
+│   .
+│   .
+│   .
+│   └── FirstSpeakerIDn_SecondSpeakerIDn.wav
+└── s2 # ground truth for the speaker s2, may not be given
+    ├── FirstSpeakerID1_SecondSpeakerID1.wav # also may be flac or mp3
+    ├── FirstSpeakerID2_SecondSpeakerID2.wav
+    .
+    .
+    .
+    └── FirstSpeakerIDn_SecondSpeakerIDn.wav
+```
+<details>
+<summary>Run the following command:</summary>
+
+```bash
+!python calculate_metrics.py \
+    predict_dir=PREDICT_DIR_PATH \
+    gt_dir=GROUND_TRUTH_DIR_PATH
+```
+</details>
+
 6) Finally, if you want to reproduce results from [here](#final-results), run the following code:
-   ```bash
-   TODO
-   python inference.py dataloader.batch_size=500 inferencer.save_path=SAVE_PATH datasets.test.part="test-other"
-   ```
+```bash
+python inference.py \
+    inferencer.from_pretrained='saved/R4/model_best.pth'
+```
    Feel free to choose what kind of metrics you want to evaluate (
    see [this config](src/configs/metrics/inference.yaml)).
 

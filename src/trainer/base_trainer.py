@@ -31,7 +31,7 @@ class BaseTrainer:
         epoch_len=None,
         skip_oom=True,
         batch_transforms=None,
-        profiler=None
+        profiler=None,
     ):
         """
         Args:
@@ -252,12 +252,10 @@ class BaseTrainer:
 
         if self.profiler is not None:
             self.profiler.stop_profile()
-            self.profiler_data['train_memory'] = torch.cuda.max_memory_allocated()
-            self.profiler_data['train_flops'] = self.profiler.get_total_flops()
-            self.profiler_data['train_macs'] = self.profiler.get_total_params()
-            self.profiler_data['train_params'] = self.profiler.get_total_params()
-            self.profiler_data['train_time'] = self.profiler.get_total_duration()
-            # self.profiler.print_model_profile()
+            self.profiler_data["train_memory"] = torch.cuda.max_memory_allocated()
+            self.profiler_data["macs"] = self.profiler.get_total_params()
+            self.profiler_data["params"] = self.profiler.get_total_params()
+            self.profiler_data["train_time"] = self.profiler.get_total_duration()
             self.profiler.end_profile()
 
         logs = last_train_metrics
@@ -303,10 +301,7 @@ class BaseTrainer:
 
         if self.profiler is not None:
             self.profiler.stop_profile()
-            self.profiler_data['eval_flops'] = self.profiler.get_total_flops()
-            self.profiler_data['eval_macs'] = self.profiler.get_total_params()
-            self.profiler_data['eval_params'] = self.profiler.get_total_params()
-            self.profiler_data['eval_time'] = self.profiler.get_total_duration()
+            self.profiler_data["eval_time"] = self.profiler.get_total_duration()
             self.profiler.end_profile()
 
         return self.evaluation_metrics.result()
@@ -550,7 +545,6 @@ class BaseTrainer:
                 "Warning: Architecture configuration given in the config file is different from that "
                 "of the checkpoint. This may yield an exception when state_dict is loaded."
             )
-        # self.model.load_state_dict(self.remove_module_prefix(checkpoint["state_dict"], "module."))  # TODO
         self.model.load_state_dict(checkpoint["state_dict"])
 
         # load optimizer state from checkpoint only when optimizer type is not changed.

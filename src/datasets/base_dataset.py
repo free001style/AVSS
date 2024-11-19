@@ -69,14 +69,16 @@ class BaseDataset(Dataset):
         """
         data_dict = self._index[ind]
         mix = self.load_audio(data_dict["mix"]).squeeze()
-        if data_dict["label1"] == data_dict["label2"]:
-            label1 = None
-            label2 = None
+        if data_dict["label1"] is None:
+            label1 = label2 = None
         else:
             label1 = self.load_audio(data_dict["label1"]).squeeze()
             label2 = self.load_audio(data_dict["label2"]).squeeze()
-        mouths1 = self.load_np_object(data_dict["mouths1"])
-        mouths2 = self.load_np_object(data_dict["mouths2"])
+        if data_dict["mouths1"] is None or data_dict["mouths2"] is None:
+            mouths1 = mouths2 = None
+        else:
+            mouths1 = self.load_np_object(data_dict["mouths1"])
+            mouths2 = self.load_np_object(data_dict["mouths2"])
 
         instance_data = {
             "mix": mix,

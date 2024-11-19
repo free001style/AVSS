@@ -36,7 +36,7 @@ Mixed audio |
     :-: | :-:
     <video src='https://github.com/user-attachments/assets/e78f197e-958f-497b-80a0-a6be51363074' width=180/> | <video src='https://github.com/user-attachments/assets/341adeee-ecb6-4600-b66e-a5c531ebebd7' width=180/>
 
-- Audio-only model:
+- Audio-only SS model:
 
     speaker 1 | speaker 2
     :-: | :-:
@@ -68,7 +68,7 @@ Follow these steps to install the project:
 2. Download model checkpoint, vocab and language model.
 
    ```bash
-   python download_weights.py
+   python scripts/download_weights.py
    ```
 
 ## How To Use
@@ -293,7 +293,7 @@ GroundTruthDir
 Run the following command:
 
 ```bash
-python calculate_metrics.py \
+python scripts/calculate_metrics.py \
     predict_dir=PREDICT_DIR_PATH \
     gt_dir=GROUND_TRUTH_DIR_PATH
 ```

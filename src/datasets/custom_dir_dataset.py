@@ -22,7 +22,7 @@ class CustomDirDataset(BaseDataset):
                     s2_path = str(audio_dir / "s2" / mix)
                     self.separate_only = False
                 else:
-                    s1_path = s2_path = str(mix)
+                    s1_path = s2_path = None
                     self.separate_only = True
                 if mouths_dir.exists():
                     mouths1, mouths2 = (

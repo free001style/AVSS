@@ -15,7 +15,7 @@ os.environ["HYDRA_FULL_ERROR"] = "1"
 
 
 @hydra.main(
-    version_base=None, config_path="src/configs", config_name="calculate_metrics"
+    version_base=None, config_path="../src/configs", config_name="calculate_metrics"
 )
 @torch.no_grad()
 def main(config):

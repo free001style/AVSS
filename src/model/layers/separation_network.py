@@ -16,17 +16,16 @@ class SeparationNetwork(nn.Module):
     """
 
     def __init__(
-            self,
-            channel_dim,
-            video_embed_dim,
-            n_head=4,
-            R=12,
-            hidden_dim=64,
-            freqs=128,
-            q_audio=2,
-            q_video=4,
-            use_video=True,
-            use_same_block=True,
+        self,
+        channel_dim,
+        video_embed_dim,
+        n_head=4,
+        R=12,
+        hidden_dim=64,
+        freqs=128,
+        q_audio=2,
+        q_video=4,
+        use_video=True,
     ):
         """
         Args:
@@ -39,7 +38,6 @@ class SeparationNetwork(nn.Module):
             q_audio (int): number of spacial dim decreasing in compression phase for audio (q in paper).
             q_video (int): number of spacial dim decreasing in compression phase for video (q in paper).
             use_video (bool): whether to use video of speakers.
-            use_same_block (bool): if True apply one rtfs block sequentially, if False apply different blocks.
         """
         super(SeparationNetwork, self).__init__()
         self.use_video = use_video
@@ -53,12 +51,7 @@ class SeparationNetwork(nn.Module):
                 h=n_head,
             )
         self.ap = rtfs_block
-        self.use_same_block = use_same_block
-        if self.use_same_block:
-            self.rtfs_blocks = rtfs_block
-        else:
-            self.rtfs_blocks = nn.ModuleList([RTFSBlock(channel_dim, hidden_dim, freqs, q_audio)
-                                              for _ in range(self.R)])
+        self.rtfs_blocks = rtfs_block
 
     def forward(self, audio_embed, video_embed):
         """
@@ -76,10 +69,7 @@ class SeparationNetwork(nn.Module):
         else:
             fused = audio_embed.clone()
         for i in range(self.R):
-            if i > 0:  # TODO
+            if i > 0:
                 fused += residual
-            if self.use_same_block:
-                fused = self.rtfs_blocks(fused)
-            else:
-                fused = self.rtfs_blocks[i](fused)
+            fused = self.rtfs_blocks(fused)
         return fused

@@ -9,21 +9,21 @@ def collate_fn(dataset_items: list[dict], use_video):
     Args:
         dataset_items (list[dict]): list of objects from
             dataset.__getitem__.
+        use_video (bool): whether to add video key in dict.
     Returns:
         result_batch (dict[Tensor]): dict, containing batch-version
             of the tensors.
     """
     batch_size = len(dataset_items)
     time_audio = dataset_items[0]["mix"].shape[0]
-    if use_video:
-        time_video, h, w = dataset_items[0]["mouths1"].shape
     result_batch = {
         "mix": torch.zeros((batch_size, time_audio)),
         "source": torch.zeros((batch_size, 2, time_audio))
         if dataset_items[0]["label1"] is not None
         else None,
-        "video": torch.zeros((batch_size, 2, time_video, h, w))
-        if use_video else None,
+        "video": torch.zeros((batch_size, 2, *dataset_items[0]["mouths1"].shape))
+        if use_video
+        else None,
         "name": [""] * batch_size,
     }
     for i in range(batch_size):

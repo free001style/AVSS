@@ -1,4 +1,5 @@
 from abc import abstractmethod
+
 from torchmetrics.audio import PermutationInvariantTraining
 
 
@@ -14,7 +15,7 @@ class BaseMetric:
         """
         self.name = name if name is not None else type(self).__name__
         if use_pit:
-            self.metric = PermutationInvariantTraining(self.metric).to('cuda')
+            self.metric = PermutationInvariantTraining(self.metric)
 
     @abstractmethod
     def __call__(self, **batch):

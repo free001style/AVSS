@@ -1,34 +1,27 @@
 import json
 import os
+from pathlib import Path
 
 from src.datasets.base_dataset import BaseDataset
 from src.utils.io_utils import ROOT_PATH
-from pathlib import Path
 
 
 class Dataset(BaseDataset):
     def __init__(self, part, data_dir=None, *args, **kwargs):
         if data_dir is None:
             data_dir = ROOT_PATH / "data" / "datasets" / "dla_dataset"
-        elif isinstance(data_dir, str):
+        else:
             data_dir = Path(data_dir).absolute()
         self._data_dir = data_dir
-        save_dir = kwargs.get('save_dir', data_dir)
-        if isinstance(save_dir, str):
-            save_dir = Path(save_dir).absolute()
-        self._save_dir = save_dir
-        self._save_dir.mkdir(exist_ok=True, parents=True)
         index = self._get_or_load_index(part)
         super().__init__(index, *args, **kwargs)
 
     def _get_or_load_index(self, part):
-        index_path = self._save_dir / f"{part}_index.json"
+        index_path = self._data_dir / f"{part}_index.json"
         if index_path.exists():
             with index_path.open() as f:
                 index = json.load(f)
-                self.separate_only = (
-                    True if index[0]["label1"] == index[0]["label2"] else False
-                )
+                self.separate_only = True if index[0]["label1"] is None else False
         else:
             index = self._create_index(part)
             with index_path.open("w") as f:
@@ -47,7 +40,7 @@ class Dataset(BaseDataset):
                     s2_path = str(audio_dir / "s2" / mix)
                     self.separate_only = False
                 else:
-                    s1_path = s2_path = str(mix)
+                    s1_path = s2_path = None
                     self.separate_only = True
                 mouths1, mouths2 = mix[:-4].split("_")
                 mouths1_path = str(mouths_dir / f"{mouths1}.npz")

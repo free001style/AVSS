@@ -46,7 +46,7 @@ class WandBWriter:
         try:
             import wandb
 
-            wandb.login(key=KEY, relogin=True)
+            wandb.login()
 
             self.run_id = run_id
 

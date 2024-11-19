@@ -10,6 +10,7 @@ class SDRi(BaseMetric):
         Applies SDRi metric function.
         """
         self.metric = sdr
+        self.use_pit = kwargs["use_pit"]
         super().__init__(*args, **kwargs)
 
     def __call__(self, source, predict, mix, **batch):
@@ -21,6 +22,8 @@ class SDRi(BaseMetric):
         Returns:
             metric (Tensor): calculated SDRi.
         """
+        if self.use_pit and self.metric.device != source.device:
+            self.metric = self.metric.to(source.device)
         return torch.mean(
             self.metric(predict, source)
             - self.metric(mix.unsqueeze(1).expand(-1, source.shape[1], -1), source)

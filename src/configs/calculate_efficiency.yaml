@@ -29,8 +29,9 @@ trainer:
   device: auto # device name or "auto"
   override: True # if True, will override the previous run with the same name
   early_stop: ${trainer.n_epochs} # epochs for early stopping
+  save_period: 5
   save_dir: "saved"
   seed: 1
   max_grad_norm: 5
   is_amp: True
-model_path: data/other/R12.pth
+model_path: "data/other/R12.pth"

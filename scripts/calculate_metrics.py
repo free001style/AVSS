@@ -1,6 +1,9 @@
 import os
+import sys
 import warnings
 from pathlib import Path
+
+sys.path.append('.')
 
 import hydra
 import torch

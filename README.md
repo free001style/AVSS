@@ -26,22 +26,21 @@ See a [report](https://github.com/free001style/AVSS/report.pdf) for more informa
 
 <summary>Examples</summary>
 
-Mixed audio |
-:-: |
-<video src='https://github.com/user-attachments/assets/1eef968b-f39d-4b5e-9560-bc453068b891' width=180/> |
+                                               Mixed audio                                                |
+:--------------------------------------------------------------------------------------------------------:|
+ <video src='https://github.com/user-attachments/assets/1eef968b-f39d-4b5e-9560-bc453068b891' width=180/> |
 
 - AVSS model:
 
     speaker 1 | speaker 2
-    :-: | :-:
+      :-: | :-:
     <video src='https://github.com/user-attachments/assets/e78f197e-958f-497b-80a0-a6be51363074' width=180/> | <video src='https://github.com/user-attachments/assets/341adeee-ecb6-4600-b66e-a5c531ebebd7' width=180/>
 
 - Audio-only SS model:
 
     speaker 1 | speaker 2
-    :-: | :-:
+      :-: | :-:
     <video src='https://github.com/user-attachments/assets/afdc7d50-1408-4779-b3e2-a3cc5de54c25' width=180/> | <video src='https://github.com/user-attachments/assets/4d35f835-24a7-4919-a4eb-41b082ac2dea' width=180/>
-
 
 </details>
 
@@ -98,7 +97,7 @@ python inference.py \
     datasets.test.data_dir=TEST_DATASET_PATH \
     inferencer.save_path=SAVE_PATH \
     model=no_video_rtfs \
-    inferencer.from_pretrained='saved/other/no_video_model.pth'
+    inferencer.from_pretrained='data/other/no_video_model.pth'
 ```
 
 where `SAVE_PATH` is a path to save separation predictions and `TEST_DATASET_PATH` is directory with test data.
@@ -133,8 +132,8 @@ Run the following command:
 ```bash
 python inference.py \
     datasets=inference_custom \
-    inferencer.save_path=SAVE_PATH \
     datasets.test.data_dir=TEST_DATASET_PATH
+    inferencer.save_path=SAVE_PATH
 ```
 
 where `SAVE_PATH` is a path to save separation predictions and `TEST_DATASET_PATH` is directory with test data.
@@ -176,10 +175,10 @@ Run the following command:
 ```bash
 python inference.py \
     datasets=inference_custom \
-    inferencer.save_path=SAVE_PATH \
     datasets.test.data_dir=TEST_DATASET_PATH \
+    inferencer.save_path=SAVE_PATH \
     model=no_video_rtfs \
-    inferencer.from_pretrained='saved/other/no_video_model.pth' \
+    inferencer.from_pretrained='data/other/no_video_model.pth' \
     metrics.inference.0.use_pit=True \
     metrics.inference.1.use_pit=True \
     metrics.inference.2.use_pit=True \
@@ -231,8 +230,8 @@ Run the following command:
 ```bash
 python inference.py \
     datasets=inference_custom \
-    inferencer.save_path=SAVE_PATH \
     datasets.test.data_dir=TEST_DATASET_PATH
+    inferencer.save_path=SAVE_PATH
 ```
 
 where `SAVE_PATH` is a path to save separation predictions and `TEST_DATASET_PATH` is directory with test data.
@@ -308,6 +307,14 @@ python inference.py \
 ```
 
 Feel free to choose what kind of metrics you want to evaluate (see [this config](src/configs/metrics/inference.yaml)).
+
+To calculate efficiency metrics such as MACs, memory required to process 1 batch with a single mix and video, the number
+of model parameters, size of the saved model on disk, time for 1 step on training and inference and real-time factor,
+run the following code:
+
+```bash
+python scripts/calculate_efficiency.py dataloader.batch_size=1
+```
 
 ### Training
 

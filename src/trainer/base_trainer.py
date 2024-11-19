@@ -254,7 +254,6 @@ class BaseTrainer:
             self.profiler.stop_profile()
             self.profiler_data["train_memory"] = torch.cuda.max_memory_allocated()
             self.profiler_data["macs"] = self.profiler.get_total_params()
-            self.profiler_data["params"] = self.profiler.get_total_params()
             self.profiler_data["train_time"] = self.profiler.get_total_duration()
             self.profiler.end_profile()
 
@@ -370,6 +369,8 @@ class BaseTrainer:
                 the dataloader with some of the tensors on the device.
         """
         for tensor_for_device in self.cfg_trainer.device_tensors:
+            if batch[tensor_for_device] is None:
+                continue
             batch[tensor_for_device] = batch[tensor_for_device].to(self.device)
         return batch
 

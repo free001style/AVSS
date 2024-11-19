@@ -1,6 +1,8 @@
 import os
+import sys
 import warnings
 
+sys.path.append('.')
 import hydra
 import torch
 from deepspeed.profiling.flops_profiler import FlopsProfiler
@@ -23,7 +25,7 @@ def measure(config):
     if config.trainer.device == "auto":
         device = "cuda" if torch.cuda.is_available() else "cpu"
     else:
-        device = config.device
+        device = config.trainer.device
     project_config = OmegaConf.to_container(config)
     logger = setup_saving_and_logging(config)
     writer = instantiate(config.writer, logger, project_config)
@@ -56,13 +58,14 @@ def measure(config):
 
     trainer.train()
 
-    print("Params (M)", trainer.profiler_data["params"] / 10**6)
-    print("MACs (G)", trainer.profiler_data["macs"] / 10**9)
+    print("All Params (M)", sum([p.numel() for p in model.parameters()]) / 10 ** 6)
+    print("Trainable Params (M)", sum([p.numel() for p in model.parameters() if p.requires_grad]) / 10 ** 6)
+    print("MACs (G)", trainer.profiler_data["macs"] / 10 ** 9)
     print("Memory (GB)", trainer.profiler_data["train_memory"])
-    print("Train time (ms)", trainer.profiler_data["train_time"])
-    print("Infer. time (ms)", trainer.profiler_data["eval_time"])
+    print("Train time (s)", trainer.profiler_data["train_time"])
+    print("Infer. time (s)", trainer.profiler_data["eval_time"])
     print("Real-Time factor", trainer.profiler_data["eval_time"] / 2)
-    print("Size of the saved model on disk (MB)", os.path.getsize(config.model_path))
+    print("Size of the saved model on disk (MB)", os.path.getsize(config.model_path) / 10 ** 6)
 
 
 if __name__ == "__main__":

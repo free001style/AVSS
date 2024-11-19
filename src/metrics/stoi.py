@@ -9,6 +9,7 @@ class STOI(BaseMetric):
         Applies STOI metric function.
         """
         self.metric = ShortTimeObjectiveIntelligibility(16000)
+        self.use_pit = kwargs["use_pit"]
         super().__init__(*args, **kwargs)
 
     def __call__(self, source, predict, **kwargs):
@@ -19,4 +20,6 @@ class STOI(BaseMetric):
         Returns:
             metric (Tensor): calculated STOI.
         """
+        if self.use_pit and self.metric.device != source.device:
+            self.metric = self.metric.to(source.device)
         return self.metric(predict, source).mean()

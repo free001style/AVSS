@@ -9,6 +9,7 @@ class PESQ(BaseMetric):
         Applies PESQ metric function.
         """
         self.metric = PerceptualEvaluationSpeechQuality(16000, "wb")
+        self.use_pit = kwargs["use_pit"]
         super().__init__(*args, **kwargs)
 
     def __call__(self, source, predict, **kwargs):
@@ -19,4 +20,6 @@ class PESQ(BaseMetric):
         Returns:
             metric (Tensor): calculated PESQ.
         """
+        if self.use_pit and self.metric.device != source.device:
+            self.metric = self.metric.to(source.device)
         return self.metric(predict, source).mean()

@@ -253,7 +253,7 @@ class BaseTrainer:
         if self.profiler is not None:
             self.profiler.stop_profile()
             self.profiler_data["train_memory"] = torch.cuda.max_memory_allocated()
-            self.profiler_data["macs"] = self.profiler.get_total_params()
+            self.profiler_data["macs"] = self.profiler.get_total_macs()
             self.profiler_data["train_time"] = self.profiler.get_total_duration()
             self.profiler.end_profile()
 

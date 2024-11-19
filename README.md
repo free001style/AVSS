@@ -26,8 +26,8 @@ See a [report](https://github.com/free001style/AVSS/report.pdf) for more informa
 
 <summary>Examples</summary>
 
-                                               Mixed audio                                                |
-:--------------------------------------------------------------------------------------------------------:|
+Mixed audio |
+:-: |
  <video src='https://github.com/user-attachments/assets/1eef968b-f39d-4b5e-9560-bc453068b891' width=180/> |
 
 - AVSS model:
@@ -336,9 +336,9 @@ It takes around 10 and 4 days to train AVSS and audio-only SS models from scratc
 ## Final results
 
 ```angular2html
-                        SI-SNRi    SDRi    PESQ    STOI    Params(M)    MACs(G)    Memory(GB)    Train time(ms)    Infer. time(ms)
-RTFS-Net-12              12.95    13.33    2.42    0.92      0.771
-audio-only model (R=4)   11.35    11.80    1.79    0.61      0.772
+                        SI-SNRi    SDRi    PESQ    STOI    Params(M)    MACs(G)    Memory(GB)    Train time(s)    Infer. time(ms)    Real-time factor    Size on disk(MB)
+RTFS-Net-12              12.95    13.33    2.42    0.92      0.771       88.5         7.12            1.85             1.17                0.58               57.04
+audio-only model (R=4)   11.35    11.80    1.79    0.61      0.772       17.9         2.33            0.66             0.22                0.11                9.52
 ```
 
 ## Credits

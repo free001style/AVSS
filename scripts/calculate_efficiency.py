@@ -2,7 +2,7 @@ import os
 import sys
 import warnings
 
-sys.path.append('.')
+sys.path.append(".")
 import hydra
 import torch
 from deepspeed.profiling.flops_profiler import FlopsProfiler
@@ -10,9 +10,8 @@ from hydra.utils import instantiate
 from omegaconf import OmegaConf
 
 from src.datasets.data_utils import get_dataloaders
-from src.trainer import Inferencer, Trainer
+from src.trainer import Trainer
 from src.utils.init_utils import setup_saving_and_logging
-from src.utils.io_utils import ROOT_PATH
 
 warnings.filterwarnings("ignore", category=UserWarning)
 os.environ["HYDRA_FULL_ERROR"] = "1"
@@ -59,13 +58,19 @@ def measure(config):
     trainer.train()
 
     print("All Params (M)", sum([p.numel() for p in model.parameters()]) / 10 ** 6)
-    print("Trainable Params (M)", sum([p.numel() for p in model.parameters() if p.requires_grad]) / 10 ** 6)
+    print(
+        "Trainable Params (M)",
+        sum([p.numel() for p in model.parameters() if p.requires_grad]) / 10 ** 6,
+    )
     print("MACs (G)", trainer.profiler_data["macs"] / 10 ** 9)
-    print("Memory (GB)", trainer.profiler_data["train_memory"])
+    print("Memory (GB)", trainer.profiler_data["train_memory"] / 10 ** 9)
     print("Train time (s)", trainer.profiler_data["train_time"])
     print("Infer. time (s)", trainer.profiler_data["eval_time"])
     print("Real-Time factor", trainer.profiler_data["eval_time"] / 2)
-    print("Size of the saved model on disk (MB)", os.path.getsize(config.model_path) / 10 ** 6)
+    print(
+        "Size of the saved model on disk (MB)",
+        os.path.getsize(config.model_path) / 10 ** 6,
+    )
 
 
 if __name__ == "__main__":

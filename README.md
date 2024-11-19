@@ -33,13 +33,13 @@ Mixed audio |
 - AVSS model:
 
     speaker 1 | speaker 2
-      :-: | :-:
+    :-: | :-:
     <video src='https://github.com/user-attachments/assets/e78f197e-958f-497b-80a0-a6be51363074' width=180/> | <video src='https://github.com/user-attachments/assets/341adeee-ecb6-4600-b66e-a5c531ebebd7' width=180/>
 
-- Audio-only SS model:
+- Audio-only model:
 
     speaker 1 | speaker 2
-      :-: | :-:
+    :-: | :-:
     <video src='https://github.com/user-attachments/assets/afdc7d50-1408-4779-b3e2-a3cc5de54c25' width=180/> | <video src='https://github.com/user-attachments/assets/4d35f835-24a7-4919-a4eb-41b082ac2dea' width=180/>
 
 </details>

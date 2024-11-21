@@ -18,7 +18,7 @@ is [RTFS-Net](https://arxiv.org/abs/2309.17189).
 
 See the task assignment [here](https://github.com/markovka17/dla/tree/2024/project_avss).
 
-See a [report](https://github.com/free001style/AVSS/report.pdf) for more information.
+See a [report](https://github.com/free001style/AVSS/blob/main/report.pdf) for more information.
 
 ## Examples
 
